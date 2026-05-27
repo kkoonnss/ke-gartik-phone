@@ -2098,6 +2098,62 @@ body.album {
 
 
 /* =====================================================================
+   v0.4 — HOST-AS-PLAYER AREA  (#host-play-area)
+   ===================================================================== */
+
+/* Container — shown only during state=playing (host.js toggles hidden attr).
+   Sits below the host header + main grid. Full-width, constrained content. */
+#host-play-area {
+  border-top: 1.5px solid var(--line);
+  background: var(--bg);
+  padding: var(--sp-5) var(--sp-6);
+}
+
+/* Play screens inside host-play-area are sized for a laptop, not a phone.
+   Override the min-height: 100dvh so screens don't push the page tall. */
+#host-play-area .play__screen {
+  min-height: unset;
+  min-height: auto;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: var(--sp-4);
+}
+
+/* Canvas wrapper gets a fixed, generous size on desktop */
+#host-play-area .play__canvas-wrap {
+  max-width: 760px;
+}
+
+/* Textarea and submit button can be wider on desktop */
+#host-play-area .play__textarea,
+#host-play-area .play__btn {
+  max-width: 760px;
+}
+
+/* Describe image: desktop can handle a larger preview */
+#host-play-area .play__image {
+  max-width: 600px;
+  max-height: 420px;
+}
+
+/* Error toast inside host-play-area — slightly higher z-index so it
+   doesn't get buried under the host header */
+#host-play-area #error-toast {
+  z-index: 200;
+}
+
+/* Play Again button — sits comfortably in the reveal panel row */
+#m-play-again {
+  margin-top: var(--sp-3);
+}
+
+/* Back to Lobby button — ghost style, same row as Skip Phase */
+#m-back-to-lobby {
+  margin-top: var(--sp-2);
+}
+
+
+/* =====================================================================
    v0.3 — PREFERS-REDUCED-MOTION OVERRIDES
    ===================================================================== */
 

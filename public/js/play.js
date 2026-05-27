@@ -16,6 +16,15 @@ import {
 import { initCanvas } from './canvas.js';
 
 // ---------------------------------------------------------------------------
+// Host-page detection (v0.4)
+// ---------------------------------------------------------------------------
+// play.js is loaded on BOTH play.html and host.html.
+// When running on host.html, #host-root is present in the DOM.
+// Guard host-only divergences behind this flag; player-page behaviour is
+// UNCHANGED when isHostPage === false.
+const isHostPage = !!document.getElementById('host-root');
+
+// ---------------------------------------------------------------------------
 // Constants / helpers
 // ---------------------------------------------------------------------------
 
@@ -225,13 +234,17 @@ function buildVotePanel(albumIdx, roomState) {
   const optionsEl = document.createElement('div');
   optionsEl.className = 'play__vote-options';
 
-  if (!album || !album.slides || album.slides.length === 0) {
+  // Server sends each album as a flat array of slides. Accept either a flat
+  // array OR a { slides: [...] } envelope for forward-compatibility.
+  const slides = Array.isArray(album) ? album : (album && album.slides) ? album.slides : [];
+
+  if (slides.length === 0) {
     const empty = document.createElement('p');
     empty.className = 'play__vote-empty';
     empty.textContent = 'No slides to vote on';
     optionsEl.appendChild(empty);
   } else {
-    album.slides.forEach((slide, slideIdx) => {
+    slides.forEach((slide, slideIdx) => {
       const isSystem = slide.authorId === 'system';
 
       // Resolve author name from room players
@@ -526,6 +539,12 @@ function injectDrawBanner(text, cssClass) {
 // ---------------------------------------------------------------------------
 
 function renderWaiting(roomState) {
+  // On the host page the waiting screen is never shown — the host uses
+  // the settings panel (lobby) or #phase-status (playing) as their view.
+  // host.js hides #host-play-area during lobby and until a phase assignment
+  // arrives, so play.js simply does nothing here on the host page.
+  if (isHostPage) return;
+
   showScreen('waiting-screen');
   stopCountdown();
   const ul = document.getElementById('waiting-players');
@@ -998,13 +1017,16 @@ function applyState(roomState, assignment, submitted) {
 
   const state = roomState.state;
 
-  // Reveal or ended → spectator with vote panel
+  // Reveal or ended → spectator with vote panel (phone players).
+  // On host page, #host-play-area is hidden by host.js during reveal/ended so
+  // we skip rendering entirely — the host uses the reveal panel in host.js.
   if (state === 'reveal' || state === 'ended') {
+    if (isHostPage) return;
     renderSpectator(roomState);
     return;
   }
 
-  // Lobby
+  // Lobby — renderWaiting is a no-op on host page (see renderWaiting).
   if (state === 'lobby') {
     renderWaiting(roomState);
     return;
@@ -1013,6 +1035,9 @@ function applyState(roomState, assignment, submitted) {
   // Playing — use assignment to decide screen
   if (state === 'playing') {
     if (!assignment) {
+      // No assignment yet: phone players see waiting screen.
+      // Host page: host.js shows #phase-status; #host-play-area stays hidden
+      // until a phase:assignment arrives, so we just no-op here.
       renderWaiting(roomState);
       return;
     }
@@ -1069,25 +1094,35 @@ async function init() {
   const name = getStoredName();
   const emoji = getStoredEmoji();
 
-  if (!myPlayerId || !name) {
-    // Not registered — redirect to lobby with room pre-filled
+  if (!isHostPage && (!myPlayerId || !name)) {
+    // Not registered (phone player only) — redirect to lobby with room pre-filled.
+    // On host page we never redirect: the host identity was set during room:create
+    // and host.js already called room:join before play.js runs.
     window.location.href = `/?room=${roomCode}`;
     return;
   }
 
+  // On the host page, host.js has already joined the room with the correct
+  // identity. play.js still calls room:join here — the socket is a singleton
+  // so both scripts share one connection. Rejoining with the same playerId is a
+  // harmless resume (server deduplicates by resumePlayerId). This also means
+  // play.js gets an initial resp.room back and can prime lastRoomState without
+  // any race against host.js's own join (host.js ran first).
   const socket = getSocket();
 
   // Rejoin the room
   try {
     const resp = await emitAck('room:join', {
       code: roomCode,
-      name,
-      emoji,
+      name: name || 'Host',
+      emoji: emoji || '',
       resumePlayerId: myPlayerId,
     });
 
     if (!resp || resp.ok === false) {
-      window.location.href = `/?room=${roomCode}`;
+      if (!isHostPage) {
+        window.location.href = `/?room=${roomCode}`;
+      }
       return;
     }
 
@@ -1103,13 +1138,16 @@ async function init() {
       applyState(lastRoomState, lastAssignment, hasSubmitted);
     } else {
       // Show waiting until server broadcasts room:state
+      // (no-op on host page per renderWaiting guard)
       showScreen('waiting-screen');
     }
   } catch (err) {
     showErrorToast('Could not rejoin room. Redirecting...');
-    setTimeout(() => {
-      window.location.href = `/?room=${roomCode}`;
-    }, 2000);
+    if (!isHostPage) {
+      setTimeout(() => {
+        window.location.href = `/?room=${roomCode}`;
+      }, 2000);
+    }
     return;
   }
 

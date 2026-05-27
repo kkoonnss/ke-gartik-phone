@@ -8,6 +8,7 @@ const {
   removePlayer,
   promoteNextHost,
   serializeRoom,
+  resetRoomToLobby,
 } = require('./rooms');
 const modes = require('./modes');
 const { getSeatOrder } = require('./modes/_shared');
@@ -570,6 +571,25 @@ function attachGame(io) {
       broadcastState(io, room);
       emitAssignments(io, room);
       startRoomTimer(io, room);
+    });
+
+    // -----------------------------------------------------------------
+    // game:reset (host only — valid in playing, reveal, ended)
+    // -----------------------------------------------------------------
+    socket.on('game:reset', () => {
+      const ctx = socketMap.get(socket.id);
+      if (!ctx) return;
+      const room = getRoom(ctx.roomCode);
+      if (!room) return;
+      const player = getPlayer(room, ctx.playerId);
+      if (!player || !player.isHost) {
+        return emitError(socket, 'NOT_HOST', 'Only the host can reset the game');
+      }
+      if (room.state === 'lobby') return; // nothing to do; silently ignore
+
+      clearRoomTimer(room);
+      resetRoomToLobby(room);
+      broadcastState(io, room);
     });
 
     // -----------------------------------------------------------------

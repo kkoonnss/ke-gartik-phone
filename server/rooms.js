@@ -207,6 +207,28 @@ function serializeRoom(room) {
 }
 
 // -------------------------------------------------------------------
+// resetRoomToLobby — clears game state while keeping all players
+// Called by game.js game:reset handler
+// -------------------------------------------------------------------
+function resetRoomToLobby(room) {
+  room.state = 'lobby';
+  room.currentPhase = null;
+  room.albums = [];
+  room.revealCursor = null;
+  room.revealLayout = null;
+  room.votes = null;
+  room._roundData = new Map();
+  room._totalRounds = undefined;
+  room._soloPrompt = undefined;
+  room._phaseStartedAt = undefined;
+  room._advancing = false;
+  room.lastActivityAt = Date.now();
+  // KEPT: players, code, hostId, seatOrder, settings, masterprompt,
+  //       backgroundId, customPrompts, createdAt, _joinUrl, _timer
+  // (caller must clearRoomTimer before calling this)
+}
+
+// -------------------------------------------------------------------
 // Idle reaper — runs every 5 minutes, drops stale rooms
 // -------------------------------------------------------------------
 setInterval(() => {
@@ -234,5 +256,6 @@ module.exports = {
   removePlayer,
   promoteNextHost,
   serializeRoom,
+  resetRoomToLobby,
   roomCount,
 };

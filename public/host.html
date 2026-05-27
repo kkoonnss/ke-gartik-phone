@@ -109,6 +109,8 @@
         <div id="submitted-count" class="host__phase-submitted"></div>
         <button id="skip-phase" class="host__button host__button--ghost">SKIP PHASE</button>
         <button id="m-end-phase-btn" class="host__button host__button--primary" type="button" hidden>END PHASE</button>
+        <!-- Restart: Back to Lobby (mid-round bail-out) -->
+        <button id="m-back-to-lobby" class="host__button host__button--ghost" type="button">BACK TO LOBBY</button>
       </section>
 
       <section id="reveal-panel" class="host__reveal" hidden>
@@ -135,12 +137,67 @@
           <h3 class="host__winners-gallery-title">WINNERS GALLERY</h3>
           <div id="m-winners-gallery-body" class="host__winners-gallery-body"></div>
         </div>
+
+        <!-- Restart: Play Again (shown during reveal/ended) -->
+        <button id="m-play-again" class="host__button host__button--primary" type="button">PLAY AGAIN</button>
       </section>
     </main>
+
+    <!-- Host-as-player surface: same screen markup as play.html.
+         Visibility controlled by host.js (shown only during state=playing).
+         Screen selection inside is driven by play.js. -->
+    <div id="host-play-area" hidden>
+
+      <section id="waiting-screen" class="play__screen" hidden>
+        <div class="play__brand">MONDAY MEETING</div>
+        <h2 id="waiting-message" class="play__prompt">Waiting for host to start...</h2>
+        <ul id="waiting-players" class="play__player-list"></ul>
+      </section>
+
+      <section id="write-screen" class="play__screen" hidden>
+        <div id="write-countdown" class="play__countdown"></div>
+        <h2 id="write-prompt-label" class="play__prompt">Write a sentence — anything goes!</h2>
+        <textarea id="write-input" class="play__textarea" maxlength="300" placeholder="A motion designer fighting a keyframe dragon..."></textarea>
+        <button id="write-submit" class="play__btn play__btn--primary">SUBMIT</button>
+      </section>
+
+      <section id="draw-screen" class="play__screen" hidden>
+        <div id="draw-countdown" class="play__countdown"></div>
+        <div id="draw-prompt-display" class="play__prompt"></div>
+        <div class="play__canvas-wrap">
+          <canvas id="draw-canvas"></canvas>
+        </div>
+        <div id="draw-toolbar" class="play__toolbar"></div>
+        <button id="draw-submit" class="play__btn play__btn--primary">SUBMIT</button>
+      </section>
+
+      <section id="describe-screen" class="play__screen" hidden>
+        <div id="describe-countdown" class="play__countdown"></div>
+        <h2 class="play__prompt">What is this a drawing of?</h2>
+        <img id="describe-image" class="play__image" alt="" />
+        <textarea id="describe-input" class="play__textarea" maxlength="300" placeholder="Describe it..."></textarea>
+        <button id="describe-submit" class="play__btn play__btn--primary">SUBMIT</button>
+      </section>
+
+      <section id="knockoff-show-screen" class="play__screen" hidden>
+        <div id="knockoff-show-countdown" class="play__countdown"></div>
+        <h2 class="play__prompt">Memorize this drawing!</h2>
+        <img id="knockoff-show-image" class="play__image" alt="" />
+      </section>
+
+      <section id="spectator-screen" class="play__screen" hidden>
+        <div class="play__brand">MONDAY MEETING</div>
+        <h2 id="spectator-message" class="play__prompt">Nice work. Waiting on the others...</h2>
+      </section>
+
+      <div id="error-toast" class="play__toast" hidden></div>
+    </div>
   </div>
 
   <script type="module" src="/js/socket-client.js"></script>
   <script type="module" src="/js/host.js"></script>
   <script type="module" src="/js/album.js"></script>
+  <script type="module" src="/js/canvas.js"></script>
+  <script type="module" src="/js/play.js"></script>
 </body>
 </html>

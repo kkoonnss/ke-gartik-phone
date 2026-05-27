@@ -54,6 +54,13 @@ const mVoteTallyBody      = document.getElementById('m-vote-tally-body'); // Res
 const mWinnersGallery     = document.getElementById('m-winners-gallery');
 const mWinnersGalleryBody = document.getElementById('m-winners-gallery-body');
 
+// --- v0.4: host-as-player + restart DOM refs ---
+// host.js OWNS #host-play-area visibility (container only).
+// play.js owns which screen INSIDE #host-play-area is shown.
+const hostPlayArea  = document.getElementById('host-play-area');
+const mPlayAgain    = document.getElementById('m-play-again');
+const mBackToLobby  = document.getElementById('m-back-to-lobby');
+
 // --- Agent E: mode descriptions ---
 const MODE_DESCRIPTIONS = {
   classic:      'The original. Write a sentence, then draw and describe in rotation. See how mangled your prompt gets.',
@@ -215,12 +222,18 @@ function applyState(state) {
   }
 
   // Panel visibility — NEVER touch #reveal-panel (Agent D owns it)
+  // v0.4: host.js owns #host-play-area container visibility.
+  //   lobby   → settings visible; host-play-area hidden
+  //   playing → settings hidden; phase-status visible; host-play-area visible
+  //   reveal/ended → settings hidden; phase-status hidden; host-play-area hidden
   if (state.state === 'lobby') {
     settingsPanel.hidden = false;
     phaseStatus.hidden   = true;
+    if (hostPlayArea) hostPlayArea.hidden = true;
   } else if (state.state === 'playing') {
     settingsPanel.hidden = true;
     phaseStatus.hidden   = false;
+    if (hostPlayArea) hostPlayArea.hidden = false;
 
     if (state.currentPhase) {
       const cp = state.currentPhase;
@@ -235,6 +248,7 @@ function applyState(state) {
   } else if (state.state === 'reveal' || state.state === 'ended') {
     settingsPanel.hidden = true;
     phaseStatus.hidden   = true;
+    if (hostPlayArea) hostPlayArea.hidden = true;
     // reveal-panel visibility is Agent D's responsibility — do not touch
   }
 
@@ -607,6 +621,24 @@ async function init() {
       mAnimationFps.value = fps;
       const sock = getSocket();
       sock.emit('room:animation-fps', { fps });
+    });
+  }
+
+  // 10. Play Again — emitted from reveal/ended panel
+  if (mPlayAgain) {
+    mPlayAgain.addEventListener('click', () => {
+      const socket = getSocket();
+      socket.emit('game:reset');
+    });
+  }
+
+  // 11. Back to Lobby — mid-round bail-out; confirm first to avoid accidents
+  if (mBackToLobby) {
+    mBackToLobby.addEventListener('click', () => {
+      if (confirm('End this round and return everyone to the lobby?')) {
+        const socket = getSocket();
+        socket.emit('game:reset');
+      }
     });
   }
 
