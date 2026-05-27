@@ -1,0 +1,187 @@
+/* =====================================================================
+   KE_GartiK_Phone — theme.css
+   Design tokens, global resets, typography
+   Agent E — Monday Meeting visual identity
+   ===================================================================== */
+
+/* -- Google Fonts ------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap');
+
+/* -- Design Tokens ------------------------------------------------------ */
+:root {
+  /* Backgrounds */
+  --bg:        #0b0b0f;
+  --bg-elev:   #14141c;
+  --bg-elev-2: #1c1c28;
+
+  /* Ink */
+  --ink:     #f5f5f7;
+  --ink-dim: #9a9aa8;
+  --ink-xdim: #5a5a6e;
+
+  /* Accents */
+  --accent:   #FFD400;   /* punchy yellow — primary CTA */
+  --accent-2: #FF2E63;   /* hot pink — secondary highlights */
+  --accent-3: #00d68f;   /* green — success states */
+
+  /* Semantic */
+  --danger:  #ff4d6d;
+  --success: #00d68f;
+  --warning: #FFD400;
+
+  /* Structure */
+  --line:   #2a2a36;
+  --line-2: #3a3a4e;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --radius-lg: 20px;
+
+  /* Typography */
+  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+  --font-mono:    'Space Grotesk', ui-monospace, 'Courier New', monospace;
+
+  /* Spacing scale */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+
+  /* Motion */
+  --dur-fast:   80ms;
+  --dur-normal: 160ms;
+  --dur-slow:   280ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Shadows (hard offset — motion-design feel) */
+  --shadow-hard: 4px 4px 0 0 rgba(0, 0, 0, 0.8);
+  --shadow-accent: 4px 4px 0 0 var(--accent);
+
+  /* v1.1 — Reveal layout tokens */
+  --reveal-tile-radius: 8px;
+  --reveal-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.5);
+  --erase-ghost: rgba(255, 255, 255, 0.7);
+
+  /* v0.3 — Vote / winner tokens */
+  --winner-glow: 0 0 18px var(--accent);
+  --vote-badge-bg: rgba(255, 212, 0, 0.18);
+}
+
+/* -- Subtle grid background --------------------------------------------- */
+/* Data-URI SVG grid at 5% opacity, repeating 32×32 */
+body {
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cpath d='M 32 0 L 0 0 0 32' fill='none' stroke='%23ffffff' stroke-width='0.4' stroke-opacity='0.05'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* -- Global Reset ------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  line-height: 1.5;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-display);
+  border: none;
+  background: none;
+}
+
+input, textarea, select {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+ul, ol {
+  list-style: none;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* -- Typography scale --------------------------------------------------- */
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+/* -- Utility: visually hidden ------------------------------------------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* -- [hidden] with fade transition -------------------------------------- */
+[hidden] {
+  display: none !important;
+}
+
+/* Sections that JS toggles with hidden — fade in when revealed */
+.play__screen:not([hidden]),
+.host__phase:not([hidden]),
+.host__settings:not([hidden]),
+.host__reveal:not([hidden]) {
+  animation: fadeIn var(--dur-slow) var(--ease-out) both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* -- Reduced motion override -------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  body {
+    scroll-behavior: auto;
+  }
+}
+
+/* -- Scrollbar styling -------------------------------------------------- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-xdim); }

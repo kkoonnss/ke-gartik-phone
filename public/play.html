@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Play · Monday Meeting GartiK Phone</title>
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body class="play">
+  <div id="play-root">
+
+    <section id="waiting-screen" class="play__screen">
+      <div class="play__brand">MONDAY MEETING</div>
+      <h2 id="waiting-message" class="play__prompt">Waiting for host to start...</h2>
+      <ul id="waiting-players" class="play__player-list"></ul>
+    </section>
+
+    <section id="write-screen" class="play__screen" hidden>
+      <div id="write-countdown" class="play__countdown"></div>
+      <h2 id="write-prompt-label" class="play__prompt">Write a sentence — anything goes!</h2>
+      <textarea id="write-input" class="play__textarea" maxlength="300" placeholder="A motion designer fighting a keyframe dragon..."></textarea>
+      <button id="write-submit" class="play__btn play__btn--primary">SUBMIT</button>
+    </section>
+
+    <section id="draw-screen" class="play__screen" hidden>
+      <div id="draw-countdown" class="play__countdown"></div>
+      <div id="draw-prompt-display" class="play__prompt"></div>
+      <div class="play__canvas-wrap">
+        <canvas id="draw-canvas"></canvas>
+      </div>
+      <div id="draw-toolbar" class="play__toolbar"></div>
+      <button id="draw-submit" class="play__btn play__btn--primary">SUBMIT</button>
+    </section>
+
+    <section id="describe-screen" class="play__screen" hidden>
+      <div id="describe-countdown" class="play__countdown"></div>
+      <h2 class="play__prompt">What is this a drawing of?</h2>
+      <img id="describe-image" class="play__image" alt="" />
+      <textarea id="describe-input" class="play__textarea" maxlength="300" placeholder="Describe it..."></textarea>
+      <button id="describe-submit" class="play__btn play__btn--primary">SUBMIT</button>
+    </section>
+
+    <section id="knockoff-show-screen" class="play__screen" hidden>
+      <div id="knockoff-show-countdown" class="play__countdown"></div>
+      <h2 class="play__prompt">Memorize this drawing!</h2>
+      <img id="knockoff-show-image" class="play__image" alt="" />
+    </section>
+
+    <section id="spectator-screen" class="play__screen" hidden>
+      <div class="play__brand">MONDAY MEETING</div>
+      <h2 id="spectator-message" class="play__prompt">Nice work. Waiting on the others...</h2>
+    </section>
+
+    <div id="error-toast" class="play__toast" hidden></div>
+  </div>
+
+  <script type="module" src="/js/socket-client.js"></script>
+  <script type="module" src="/js/canvas.js"></script>
+  <script type="module" src="/js/play.js"></script>
+</body>
+</html>

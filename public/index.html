@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Monday Meeting · GartiK Phone</title>
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body class="lobby">
+  <div id="landing" class="lobby__card">
+    <h1 class="lobby__title">MONDAY<br/>MEETING</h1>
+    <div class="lobby__subtitle">GAME NIGHT · GARTIK PHONE</div>
+
+    <div id="error-banner" class="error-banner" hidden></div>
+
+    <form id="create-form" class="lobby__form">
+      <h2 class="lobby__section">HOST A ROOM</h2>
+      <label class="lobby__field">
+        <span>Your name</span>
+        <input id="create-name" class="lobby__input" type="text" maxlength="16" required />
+      </label>
+      <label class="lobby__field">
+        <span>Pick an emoji</span>
+        <input id="create-emoji" class="lobby__input lobby__input--emoji" type="text" maxlength="2" value="🎨" />
+      </label>
+      <button id="create-submit" class="lobby__button lobby__button--primary" type="submit">CREATE ROOM</button>
+    </form>
+
+    <div class="lobby__divider">OR</div>
+
+    <form id="join-form" class="lobby__form">
+      <h2 class="lobby__section">JOIN A ROOM</h2>
+      <label class="lobby__field">
+        <span>Room code</span>
+        <input id="join-code" class="lobby__input lobby__input--code" type="text" maxlength="4" required autocapitalize="characters" />
+      </label>
+      <label class="lobby__field">
+        <span>Your name</span>
+        <input id="join-name" class="lobby__input" type="text" maxlength="16" required />
+      </label>
+      <label class="lobby__field">
+        <span>Pick an emoji</span>
+        <input id="join-emoji" class="lobby__input lobby__input--emoji" type="text" maxlength="2" value="🐙" />
+      </label>
+      <button id="join-submit" class="lobby__button lobby__button--secondary" type="submit">JOIN</button>
+    </form>
+  </div>
+
+  <script type="module" src="/js/socket-client.js"></script>
+  <script type="module" src="/js/lobby.js"></script>
+</body>
+</html>

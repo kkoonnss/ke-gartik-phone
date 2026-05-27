@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Album · Monday Meeting GartiK Phone</title>
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body class="album">
+  <div id="album-root">
+    <h1 id="album-title" class="album__title">MONDAY MEETING · GAME NIGHT ALBUM</h1>
+    <div id="album-position" class="album__position"></div>
+    <div id="album-player" class="album__slide">
+      <img id="album-slide-image" alt="" hidden />
+      <div id="album-slide-text" class="album__text"></div>
+      <div id="album-slide-author" class="album__author"></div>
+    </div>
+    <div class="album__nav">
+      <button id="album-prev" class="album__nav-btn">PREV</button>
+      <button id="album-next" class="album__nav-btn album__nav-btn--primary">NEXT</button>
+    </div>
+  </div>
+
+  <script type="module" src="/js/socket-client.js"></script>
+  <script type="module" src="/js/album.js"></script>
+</body>
+</html>

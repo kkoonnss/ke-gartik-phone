@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 80" width="480" height="80" role="img" aria-label="Monday Meeting wordmark">
+  <title>Monday Meeting</title>
+  <!-- Heavy uppercase wordmark — Space Grotesk 700 approximated via path rendering -->
+  <!-- Stacked layout: MONDAY top row, MEETING bottom row, bold geometric sans -->
+  <text
+    x="240"
+    y="36"
+    text-anchor="middle"
+    font-family="'Space Grotesk', 'Inter', system-ui, sans-serif"
+    font-size="42"
+    font-weight="700"
+    letter-spacing="-1"
+    fill="#FFD400"
+    text-transform="uppercase"
+  >MONDAY</text>
+  <text
+    x="240"
+    y="76"
+    text-anchor="middle"
+    font-family="'Space Grotesk', 'Inter', system-ui, sans-serif"
+    font-size="42"
+    font-weight="700"
+    letter-spacing="-1"
+    fill="#FFD400"
+    text-transform="uppercase"
+  >MEETING</text>
+</svg>

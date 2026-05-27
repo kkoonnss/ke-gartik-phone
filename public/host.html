@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Host · Monday Meeting GartiK Phone</title>
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body class="host">
+  <div id="host-root">
+    <header class="host__header">
+      <div class="host__brand">MONDAY MEETING · GARTIK PHONE</div>
+      <div class="host__code-block">
+        <div class="host__code-label">ROOM CODE</div>
+        <div id="room-code" class="host__code">----</div>
+      </div>
+    </header>
+
+    <main class="host__main">
+      <section class="host__qr">
+        <img id="qr-image" alt="Scan to join" />
+        <div id="join-url" class="host__join-url"></div>
+      </section>
+
+      <section class="host__players">
+        <h2 class="host__h2">PLAYERS</h2>
+        <ul id="player-list" class="host__player-list"></ul>
+      </section>
+
+      <section id="settings-panel" class="host__settings">
+        <h2 class="host__h2">SETTINGS</h2>
+        <label class="host__field">
+          <span>Mode</span>
+          <select id="setting-mode">
+            <option value="classic">Classic</option>
+            <option value="knockoff">Knock-Off</option>
+            <option value="solo">Solo Prompts</option>
+            <option value="story">Story</option>
+            <option value="animation">Animation</option>
+            <option value="coop">Co-Op</option>
+            <option value="masterpiece">Masterpiece</option>
+            <option value="missingpiece">Missing Piece</option>
+            <option value="background">Background</option>
+            <option value="secret">Secret</option>
+          </select>
+        </label>
+        <p id="m-mode-description" class="host__mode-description"></p>
+        <label class="host__field">
+          <span>Write seconds</span>
+          <input id="setting-write" type="number" min="20" max="180" value="60" />
+        </label>
+        <label class="host__field">
+          <span>Draw seconds</span>
+          <input id="setting-draw" type="number" min="30" max="240" value="90" />
+        </label>
+        <label class="host__field">
+          <span>Describe seconds</span>
+          <input id="setting-describe" type="number" min="15" max="120" value="45" />
+        </label>
+        <!-- Knock-Off only -->
+        <label class="host__field" id="m-knockoff-show-wrap" hidden>
+          <span>Knock-Off show seconds</span>
+          <input id="m-knockoff-show" type="number" min="3" max="20" value="8" />
+        </label>
+
+        <!-- Masterpiece + Background -->
+        <label class="host__field" id="m-master-prompt-wrap" hidden>
+          <span>Prompt for everyone</span>
+          <input id="m-master-prompt" type="text" maxlength="300" placeholder="e.g., A Cinema 4D mascot" />
+        </label>
+
+        <!-- Background only -->
+        <div id="m-bg-picker-wrap" hidden>
+          <div class="host__field-label">Background</div>
+          <div id="m-bg-picker" class="host__bg-picker"></div>
+        </div>
+
+        <!-- Secret only -->
+        <div id="m-secret-order-wrap" hidden>
+          <div class="host__field-label">Pass order (drag to reorder)</div>
+          <ul id="m-secret-order" class="host__secret-order"></ul>
+        </div>
+
+        <!-- Animation FPS (animation mode only) -->
+        <label class="host__field" id="m-animation-fps-wrap" hidden>
+          <span>Animation FPS (1-12)</span>
+          <input id="m-animation-fps" type="number" min="1" max="12" value="3" />
+        </label>
+
+        <!-- Custom prompts (solo, masterpiece, background modes) -->
+        <div id="m-custom-prompts-wrap" hidden>
+          <label class="host__field-label" for="m-custom-prompts">Custom prompts (optional, one per line)</label>
+          <textarea id="m-custom-prompts" maxlength="30000" rows="4" placeholder="One prompt per line. Leave blank to use the built-in deck."></textarea>
+          <p class="host__field-hint">Leave blank to use the built-in 30 prompts.</p>
+        </div>
+
+        <!-- Speedrun preset (always visible) -->
+        <button id="m-speedrun-btn" class="host__button host__button--ghost" type="button">SPEEDRUN PRESET</button>
+
+        <button id="start-game" class="host__button host__button--primary">START GAME</button>
+      </section>
+
+      <section id="phase-status" class="host__phase" hidden>
+        <h2 class="host__h2">NOW PLAYING</h2>
+        <div id="phase-name" class="host__phase-name"></div>
+        <div id="phase-countdown" class="host__phase-countdown"></div>
+        <div id="submitted-count" class="host__phase-submitted"></div>
+        <button id="skip-phase" class="host__button host__button--ghost">SKIP PHASE</button>
+        <button id="m-end-phase-btn" class="host__button host__button--primary" type="button" hidden>END PHASE</button>
+      </section>
+
+      <section id="reveal-panel" class="host__reveal" hidden>
+        <h2 class="host__h2">ALBUM REVEAL</h2>
+        <div id="reveal-position" class="host__reveal-position"></div>
+        <div class="host__reveal-slide">
+          <img id="reveal-image" alt="" hidden />
+          <div id="reveal-text"></div>
+          <div id="reveal-author"></div>
+        </div>
+        <div class="host__reveal-nav">
+          <button id="reveal-prev" class="host__button host__button--ghost">PREV</button>
+          <button id="reveal-next" class="host__button host__button--primary">NEXT</button>
+        </div>
+
+        <!-- Vote tally panel (visible during reveal/ended when votes exist) -->
+        <div id="m-vote-tally" class="host__vote-tally" hidden>
+          <h3 class="host__vote-tally-title">VOTE TALLY</h3>
+          <div id="m-vote-tally-body" class="host__vote-tally-body"></div>
+        </div>
+
+        <!-- Winners gallery (visible only when state=ended) -->
+        <div id="m-winners-gallery" class="host__winners-gallery" hidden>
+          <h3 class="host__winners-gallery-title">WINNERS GALLERY</h3>
+          <div id="m-winners-gallery-body" class="host__winners-gallery-body"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="/js/socket-client.js"></script>
+  <script type="module" src="/js/host.js"></script>
+  <script type="module" src="/js/album.js"></script>
+</body>
+</html>

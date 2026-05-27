@@ -1,0 +1,24 @@
+{
+  "name": "ke-gartik-phone",
+  "version": "0.3.0",
+  "description": "Monday Meeting game-night Gartic Phone clone — QR-join party game.",
+  "private": true,
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js",
+    "test": "node tests/smoke.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "nanoid": "^3.3.7",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.7.5"
+  }
+}

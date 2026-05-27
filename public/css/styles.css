@@ -1,0 +1,2146 @@
+/* =====================================================================
+   KE_GartiK_Phone — styles.css
+   Component styles for all four pages
+   Agent E — Monday Meeting visual identity
+   ===================================================================== */
+
+
+/* =====================================================================
+   SHARED COMPONENTS
+   ===================================================================== */
+
+/* Error / toast banners */
+.error-banner {
+  width: 100%;
+  padding: var(--sp-3) var(--sp-4);
+  background: color-mix(in srgb, var(--danger) 15%, var(--bg-elev));
+  border: 1.5px solid var(--danger);
+  border-radius: var(--radius-sm);
+  color: var(--danger);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* Player color dot helper (used inside chips) */
+.player-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+
+/* =====================================================================
+   PAGE: LOBBY  (index.html  —  body.lobby)
+   ===================================================================== */
+
+body.lobby {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: var(--sp-5);
+}
+
+/* Card ------------------------------------------------------------------ */
+.lobby__card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--bg-elev);
+  border: 1.5px solid var(--line-2);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-7) var(--sp-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  box-shadow: var(--shadow-hard);
+}
+
+/* Title — huge stacked uppercase wordmark */
+.lobby__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 10vw, 3.5rem);
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-align: center;
+  user-select: none;
+}
+
+/* Subtitle tagline */
+.lobby__subtitle {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  text-align: center;
+  margin-top: calc(-1 * var(--sp-3));
+}
+
+/* Section headings inside card */
+.lobby__section {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  margin-bottom: var(--sp-3);
+}
+
+/* Forms */
+.lobby__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+/* Field wrapper */
+.lobby__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.lobby__field > span {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+}
+
+/* Inputs */
+.lobby__input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--bg);
+  border: 1.5px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 500;
+  outline: none;
+  transition: border-color var(--dur-normal) var(--ease-out);
+}
+
+.lobby__input:focus {
+  border-color: var(--accent);
+}
+
+.lobby__input::placeholder {
+  color: var(--ink-xdim);
+}
+
+/* Emoji input — extra-wide for emoji display */
+.lobby__input--emoji {
+  font-size: 1.5rem;
+  text-align: center;
+  padding: 0.5rem;
+  max-width: 80px;
+}
+
+/* Room-code input — uppercase monospaced */
+.lobby__input--code {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  text-align: center;
+}
+
+/* Buttons */
+.lobby__button {
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 2px solid transparent;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    background var(--dur-normal) var(--ease-out);
+  position: relative;
+}
+
+.lobby__button:active {
+  transform: translateY(1px) !important;
+  box-shadow: none !important;
+}
+
+.lobby__button--primary {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-accent);
+}
+
+.lobby__button--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0 0 var(--accent);
+}
+
+.lobby__button--secondary {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line-2);
+}
+
+.lobby__button--secondary:hover {
+  border-color: var(--ink-dim);
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 0 rgba(255,255,255,0.06);
+}
+
+/* Divider */
+.lobby__divider {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--ink-xdim);
+  text-transform: uppercase;
+}
+
+.lobby__divider::before,
+.lobby__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+
+/* =====================================================================
+   PAGE: HOST  (host.html  —  body.host)
+   ===================================================================== */
+
+body.host {
+  min-height: 100dvh;
+  padding: 0;
+}
+
+#host-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+/* Header bar ------------------------------------------------------------ */
+.host__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-4) var(--sp-6);
+  background: var(--bg-elev);
+  border-bottom: 1.5px solid var(--line);
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.host__brand {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+/* Room code in header */
+.host__code-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.host__code-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--ink-xdim);
+  text-transform: uppercase;
+}
+
+.host__code {
+  font-family: var(--font-mono);
+  font-size: clamp(2rem, 5vw, 5rem);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  line-height: 1;
+  text-shadow: 0 0 30px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+/* Main grid layout ------------------------------------------------------ */
+.host__main {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--sp-5);
+  padding: var(--sp-5) var(--sp-6);
+  flex: 1;
+  align-content: start;
+}
+
+/* Section shared styles */
+.host__qr,
+.host__players,
+.host__settings,
+.host__phase,
+.host__reveal {
+  background: var(--bg-elev);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.host__h2 {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--line);
+}
+
+/* QR section */
+.host__qr {
+  align-items: center;
+}
+
+#qr-image {
+  width: 256px;
+  height: 256px;
+  object-fit: contain;
+  background: #fff;
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  border: 3px solid var(--accent);
+  box-shadow: var(--shadow-accent);
+}
+
+.host__join-url {
+  font-size: 0.8rem;
+  color: var(--ink-dim);
+  word-break: break-all;
+  text-align: center;
+  font-family: var(--font-mono);
+}
+
+/* Players list */
+.host__player-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.host__player {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.host__player .player-dot {
+  width: 12px;
+  height: 12px;
+}
+
+/* Settings */
+.host__settings {}
+
+.host__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.host__field > span {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+}
+
+.host__field input,
+.host__field select {
+  padding: 0.6rem 0.75rem;
+  background: var(--bg);
+  border: 1.5px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color var(--dur-normal) var(--ease-out);
+}
+
+.host__field input:focus,
+.host__field select:focus {
+  border-color: var(--accent);
+}
+
+.host__field select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239a9aa8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+/* Host buttons */
+.host__button {
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.host__button:active {
+  transform: translateY(1px) !important;
+  box-shadow: none !important;
+}
+
+.host__button--primary {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-accent);
+  width: 100%;
+}
+
+.host__button--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0 0 var(--accent);
+}
+
+.host__button--ghost {
+  background: transparent;
+  color: var(--ink-dim);
+  border-color: var(--line-2);
+}
+
+.host__button--ghost:hover {
+  border-color: var(--ink-dim);
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+
+/* Phase status section */
+.host__phase {
+  gap: var(--sp-3);
+}
+
+.host__phase-name {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+}
+
+.host__phase-countdown {
+  font-family: var(--font-mono);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.host__phase-submitted {
+  font-size: 0.875rem;
+  color: var(--ink-dim);
+  font-weight: 500;
+}
+
+/* Reveal section */
+.host__reveal {
+  grid-column: 1 / -1;  /* full width when visible */
+}
+
+.host__reveal-position {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+}
+
+.host__reveal-slide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+  min-height: 300px;
+  background: var(--bg);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--sp-5);
+}
+
+#reveal-image {
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--accent);
+}
+
+#reveal-text {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  font-weight: 700;
+  text-align: center;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+#reveal-author {
+  font-size: 0.8rem;
+  color: var(--ink-dim);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+
+.host__reveal-nav {
+  display: flex;
+  gap: var(--sp-3);
+  justify-content: flex-end;
+}
+
+.host__reveal-nav .host__button {
+  min-width: 100px;
+}
+
+
+/* =====================================================================
+   PAGE: PLAY  (play.html  —  body.play)
+   Mobile-first
+   ===================================================================== */
+
+body.play {
+  min-height: 100dvh;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+#play-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+/* Screens */
+.play__screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100dvh;
+  padding: var(--sp-5) var(--sp-4);
+  gap: var(--sp-4);
+  animation: fadeIn var(--dur-slow) var(--ease-out) both;
+}
+
+/* Brand wordmark inside play screens */
+.play__brand {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-xdim);
+  align-self: flex-start;
+}
+
+/* Countdown pill — upper-right position via absolute inside screen */
+.play__countdown {
+  align-self: flex-end;
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  background: var(--bg-elev);
+  border: 2px solid var(--accent);
+  border-radius: 100px;
+  padding: 0.3rem 1rem;
+  color: var(--accent);
+  min-width: 64px;
+  text-align: center;
+  transition: border-color var(--dur-normal), color var(--dur-normal), background var(--dur-normal);
+}
+
+/* Urgency: pulse red when low */
+.play__countdown--urgent {
+  border-color: var(--danger);
+  color: var(--danger);
+  animation: urgentPulse 1s ease-in-out infinite;
+}
+
+@keyframes urgentPulse {
+  0%, 100% { background: var(--bg-elev); }
+  50%       { background: color-mix(in srgb, var(--danger) 20%, var(--bg-elev)); }
+}
+
+/* Prompt text */
+.play__prompt {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 5vw, 1.5rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-align: center;
+  line-height: 1.2;
+  max-width: 480px;
+}
+
+/* Player list on waiting screen */
+.play__player-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  justify-content: center;
+  max-width: 480px;
+  width: 100%;
+}
+
+.play__player-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--bg-elev);
+  border: 1.5px solid var(--line);
+  border-radius: 100px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Canvas wrapper */
+.play__canvas-wrap {
+  width: 100%;
+  max-width: 600px;
+  border: 3px solid var(--accent);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #fff;
+  box-shadow: var(--shadow-accent);
+  flex-shrink: 0;
+}
+
+.play__canvas-wrap canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: none;
+}
+
+/* Toolbar — sticky at bottom on mobile, horizontal row */
+.play__toolbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  max-width: 600px;
+  background: var(--bg-elev);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-2) var(--sp-3);
+}
+
+/* Color swatch buttons */
+.play__color {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-out), border-color var(--dur-fast);
+  flex-shrink: 0;
+}
+
+.play__color:hover,
+.play__color.active {
+  transform: scale(1.2);
+  border-color: var(--ink);
+}
+
+/* Brush size buttons */
+.play__brush {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--line-2);
+  background: var(--bg);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: var(--font-display);
+  transition: border-color var(--dur-fast), transform var(--dur-fast);
+  flex-shrink: 0;
+}
+
+.play__brush:hover,
+.play__brush.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: scale(1.1);
+}
+
+/* Image display */
+.play__image {
+  width: 100%;
+  max-width: 480px;
+  max-height: 320px;
+  object-fit: contain;
+  border: 2px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+
+/* Textarea */
+.play__textarea {
+  width: 100%;
+  max-width: 480px;
+  min-height: 120px;
+  padding: 0.875rem 1rem;
+  background: var(--bg-elev);
+  border: 2px solid var(--line-2);
+  border-radius: var(--radius);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--dur-normal) var(--ease-out);
+}
+
+.play__textarea:focus {
+  border-color: var(--accent);
+}
+
+.play__textarea::placeholder {
+  color: var(--ink-xdim);
+  font-style: italic;
+}
+
+/* Buttons */
+.play__btn {
+  width: 100%;
+  max-width: 480px;
+  min-height: 52px;
+  padding: 0.875rem 1.5rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
+.play__btn:active {
+  transform: translateY(1px) !important;
+  box-shadow: none !important;
+}
+
+.play__btn--primary {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-accent);
+}
+
+.play__btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0 0 var(--accent);
+}
+
+/* Toast error */
+.play__toast {
+  position: fixed;
+  bottom: var(--sp-5);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--sp-3) var(--sp-5);
+  background: var(--danger);
+  color: #fff;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  z-index: 100;
+  animation: fadeIn var(--dur-normal) var(--ease-out);
+  white-space: nowrap;
+  max-width: 90vw;
+  text-align: center;
+}
+
+/* Toolbar sticky at bottom on small screens */
+@media (max-width: 600px) {
+  .play__toolbar {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    border-bottom: none;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+  }
+
+  .play__btn {
+    border-radius: var(--radius-sm);
+  }
+}
+
+
+/* =====================================================================
+   PAGE: ALBUM  (album.html  —  body.album)
+   ===================================================================== */
+
+body.album {
+  min-height: 100dvh;
+  display: flex;
+  align-items: stretch;
+  padding: 0;
+}
+
+#album-root {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-5);
+  padding: var(--sp-6) var(--sp-5);
+  min-height: 100dvh;
+}
+
+.album__title {
+  font-family: var(--font-display);
+  font-size: clamp(0.8rem, 2vw, 1rem);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.album__position {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--ink-xdim);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* Main slide card */
+.album__slide {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-5);
+  background: var(--bg-elev);
+  border: 2px solid var(--line-2);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-7) var(--sp-6);
+  min-height: 400px;
+  position: relative;
+  animation: fadeIn var(--dur-slow) var(--ease-out) both;
+}
+
+#album-slide-image {
+  max-width: 100%;
+  max-height: 480px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--accent);
+  box-shadow: var(--shadow-accent);
+}
+
+.album__text {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+  font-weight: 700;
+  text-align: center;
+  color: var(--ink);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  max-width: 600px;
+}
+
+/* Author chip at bottom */
+.album__author {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--bg);
+  border: 1.5px solid var(--line-2);
+  border-radius: 100px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+}
+
+/* Navigation */
+.album__nav {
+  display: flex;
+  gap: var(--sp-4);
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 480px;
+  padding-bottom: var(--sp-5);
+}
+
+.album__nav-btn {
+  flex: 1;
+  min-height: 52px;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 2px solid var(--line-2);
+  background: transparent;
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast),
+    color var(--dur-fast),
+    box-shadow var(--dur-fast);
+}
+
+.album__nav-btn:hover {
+  border-color: var(--ink-dim);
+  color: var(--ink);
+  transform: translateY(-2px);
+}
+
+.album__nav-btn:active {
+  transform: translateY(1px) !important;
+  box-shadow: none !important;
+}
+
+.album__nav-btn--primary {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-accent);
+}
+
+.album__nav-btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0 0 var(--accent);
+}
+
+
+/* =====================================================================
+   v1.1 — HOST PAGE ADDITIONS
+   Per-mode sub-panel elements styled below.
+   ===================================================================== */
+
+/* Mode description paragraph — dim italic below mode select */
+.host__mode-description {
+  font-size: 0.825rem;
+  font-style: italic;
+  color: var(--ink-dim);
+  line-height: 1.5;
+  /* clamp to roughly 3 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+/* Field label — small uppercase tracking label (companion to host__field > span) */
+.host__field-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-xdim);
+}
+
+/* Background picker — flex row of thumb buttons */
+#m-bg-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  padding: var(--sp-2) 0;
+}
+
+/* Background thumbnail button */
+.host__bg-thumb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-1);
+  background: var(--bg);
+  border: 2px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-normal) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.host__bg-thumb img {
+  width: 112px;
+  height: 84px;
+  object-fit: cover;
+  border-radius: calc(var(--radius-sm) - 2px);
+  display: block;
+}
+
+.host__bg-thumb span {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  padding: 0 var(--sp-1) var(--sp-1);
+}
+
+.host__bg-thumb:hover {
+  border-color: var(--ink-dim);
+  transform: translateY(-2px);
+  box-shadow: var(--reveal-shadow);
+}
+
+.host__bg-thumb--selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent),
+              var(--reveal-shadow);
+}
+
+.host__bg-thumb--selected span {
+  color: var(--accent);
+}
+
+/* Secret seat-order reorderable list */
+#m-secret-order {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.host__secret-order li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--bg);
+  border: 1.5px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  user-select: none;
+  transition: border-color var(--dur-fast) var(--ease-out),
+              background var(--dur-fast) var(--ease-out);
+}
+
+.host__secret-order li:active {
+  cursor: grabbing;
+}
+
+.host__secret-order li:hover {
+  border-color: var(--ink-xdim);
+  background: var(--bg-elev-2);
+}
+
+/* Emoji + name section of each row */
+.host__secret-order li .player-name {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Up/Down reorder buttons inside each row */
+.host__secret-order li .order-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--line-2);
+  background: transparent;
+  color: var(--ink-xdim);
+  font-size: 0.75rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color var(--dur-fast), color var(--dur-fast),
+              background var(--dur-fast);
+}
+
+.host__secret-order li .order-btn:hover {
+  border-color: var(--ink-dim);
+  color: var(--ink);
+  background: var(--bg-elev-2);
+}
+
+/* Speedrun preset button — ghost, subtle pulse */
+#m-speedrun-btn {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--ink-dim);
+  border: 1.5px solid var(--line-2);
+  cursor: pointer;
+  align-self: flex-start;
+  animation: speedrunPulse 2s ease-in-out infinite;
+  transition: border-color var(--dur-normal) var(--ease-out),
+              color var(--dur-normal) var(--ease-out);
+}
+
+#m-speedrun-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+@keyframes speedrunPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.55; }
+}
+
+/* End-phase button — hot pink, not full danger */
+#m-end-phase-btn {
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--accent-2);
+  color: #fff;
+  border: 2px solid var(--accent-2);
+  cursor: pointer;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast);
+  box-shadow: 4px 4px 0 0 color-mix(in srgb, var(--accent-2) 50%, #000);
+}
+
+#m-end-phase-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0 0 color-mix(in srgb, var(--accent-2) 50%, #000);
+}
+
+#m-end-phase-btn:active {
+  transform: translateY(1px) !important;
+  box-shadow: none !important;
+}
+
+/* Disconnected player polish */
+.host__player--disconnected {
+  opacity: 0.5;
+  filter: grayscale(0.6);
+  font-style: italic;
+}
+
+.host__player--disconnected::after {
+  content: 'reconnecting\2026';
+  font-size: 0.7rem;
+  font-style: italic;
+  color: var(--ink-xdim);
+  margin-left: auto;
+  letter-spacing: 0.04em;
+}
+
+
+/* =====================================================================
+   v1.1 — PLAYER PAGE ADDITIONS
+   ===================================================================== */
+
+/* No-timer banner — subtle inset bar for Masterpiece mode */
+.play__no-timer-banner {
+  width: 100%;
+  max-width: 600px;
+  padding: var(--sp-2) var(--sp-4);
+  background: color-mix(in srgb, var(--accent-3) 10%, var(--bg-elev));
+  border: 1.5px solid color-mix(in srgb, var(--accent-3) 40%, transparent);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--accent-3);
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+/* Frame badge — top-right pill showing "Frame N/M" during Animation mode */
+.play__frame-badge {
+  position: absolute;
+  top: var(--sp-3);
+  right: var(--sp-3);
+  padding: 0.2rem 0.65rem;
+  background: var(--bg-elev);
+  border: 1.5px solid var(--line-2);
+  border-radius: 100px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 5;
+}
+
+
+/* =====================================================================
+   v1.1 — REVEAL LAYOUT CONTAINERS
+   ===================================================================== */
+
+/* Base class shared by all four reveal containers */
+.reveal-layout {
+  width: 100%;
+  padding: var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  animation: fadeIn var(--dur-slow) var(--ease-out) both;
+}
+
+/* Stepper layout — existing elements handle it; no extra rules needed */
+.reveal-layout--stepper {}
+
+
+/* ----- Frame-cycle layout (Animation) ----------------------------------- */
+.reveal-layout--cycle {
+  align-items: center;
+}
+
+/* Original-prompt caption above the cycling image */
+.reveal-cycle__prompt {
+  font-family: var(--font-display);
+  font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+  font-weight: 600;
+  font-style: italic;
+  color: var(--ink-dim);
+  text-align: center;
+  max-width: 720px;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+
+.reveal-cycle__prompt::before { content: '\201C'; }
+.reveal-cycle__prompt::after  { content: '\201D'; }
+
+/* Main cycling frame — capped at canvas-resolution size */
+.reveal-cycle__image {
+  display: block;
+  max-width: 720px;
+  max-height: 540px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border: 4px solid #fff;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--reveal-shadow);
+  /* JS swaps src; CSS handles the quick cross-fade */
+  transition: opacity var(--dur-fast) var(--ease-out);
+  opacity: 1;
+}
+
+.reveal-cycle__image.is-transitioning {
+  opacity: 0.95;
+}
+
+/* Frame counter pill below image */
+.reveal-cycle__counter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.9rem;
+  background: var(--bg-elev);
+  border: 1.5px solid var(--line-2);
+  border-radius: 100px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+}
+
+/* Author chip for current frame */
+.reveal-cycle__author {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--bg);
+  border: 1.5px solid var(--line-2);
+  border-radius: 100px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+  transition: color var(--dur-normal) var(--ease-out),
+              border-color var(--dur-normal) var(--ease-out);
+}
+
+
+/* ----- Gallery layout (Solo / Masterpiece / Background) ----------------- */
+.reveal-layout--gallery {
+  align-items: flex-start;
+}
+
+/* Responsive CSS grid */
+.reveal-gallery__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--sp-4);
+  width: 100%;
+}
+
+/* Individual gallery tile */
+.reveal-gallery__tile {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-elev);
+  border: 2px solid var(--line-2);
+  border-radius: var(--reveal-tile-radius);
+  overflow: hidden;
+  box-shadow: var(--reveal-shadow);
+  cursor: pointer;
+  transition:
+    transform 150ms var(--ease-out),
+    box-shadow 150ms var(--ease-out),
+    border-color 150ms var(--ease-out);
+}
+
+.reveal-gallery__tile:hover {
+  transform: scale(1.02);
+  border-color: var(--accent);
+  box-shadow: 6px 6px 0 0 color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.reveal-gallery__tile img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: #fff;
+}
+
+/* Author chip at bottom of tile */
+.reveal-gallery__author {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+  border-top: 1px solid var(--line);
+  min-height: 36px;
+}
+
+.reveal-gallery__author .player-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+}
+
+
+/* ----- Scrollback layout (Story) ---------------------------------------- */
+.reveal-layout--scrollback {
+  align-items: center;
+}
+
+/* Inner column — max-width centered, generous breathing room */
+.reveal-scroll__list {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+/* Individual story entry */
+.reveal-scroll__entry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--bg-elev);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  /* Optional: subtle entrance on scroll */
+  opacity: 0;
+  transform: translateY(8px);
+  animation: scrollEntryIn var(--dur-slow) var(--ease-out) forwards;
+}
+
+/* Stagger each entry's animation */
+.reveal-scroll__entry:nth-child(1)  { animation-delay: 0ms; }
+.reveal-scroll__entry:nth-child(2)  { animation-delay: 60ms; }
+.reveal-scroll__entry:nth-child(3)  { animation-delay: 120ms; }
+.reveal-scroll__entry:nth-child(4)  { animation-delay: 180ms; }
+.reveal-scroll__entry:nth-child(5)  { animation-delay: 240ms; }
+.reveal-scroll__entry:nth-child(6)  { animation-delay: 300ms; }
+.reveal-scroll__entry:nth-child(7)  { animation-delay: 360ms; }
+.reveal-scroll__entry:nth-child(8)  { animation-delay: 420ms; }
+.reveal-scroll__entry:nth-child(n+9){ animation-delay: 480ms; }
+
+@keyframes scrollEntryIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Author label above text — dim uppercase tracking */
+.reveal-scroll__author {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-xdim);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+/* Story sentence body */
+.reveal-scroll__text {
+  font-family: var(--font-body);
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--ink);
+}
+
+
+/* =====================================================================
+   v1.1 — PREFERS-REDUCED-MOTION OVERRIDES
+   All new animations respect this. The global override in theme.css
+   collapses durations to 0.01ms, but we also explicitly remove the
+   speedrunPulse animation and scrollback stagger to avoid residual
+   opacity issues.
+   ===================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  #m-speedrun-btn {
+    animation: none;
+    opacity: 1;
+  }
+
+  .reveal-scroll__entry {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .reveal-cycle__image {
+    transition: none;
+  }
+
+  .reveal-gallery__tile {
+    transition: none;
+  }
+}
+
+
+/* =====================================================================
+   RESPONSIVE — shared adjustments
+   ===================================================================== */
+
+@media (min-width: 768px) {
+  /* Host main grid: fixed two-column on wider screens */
+  .host__main {
+    grid-template-columns: 300px 1fr;
+  }
+
+  /* Lobby card padding boost */
+  .lobby__card {
+    padding: var(--sp-8) var(--sp-7);
+  }
+}
+
+@media (min-width: 1024px) {
+  .host__main {
+    grid-template-columns: 320px 1fr 1fr;
+  }
+}
+
+/* Tall play screens get more centered layout */
+@media (min-height: 700px) and (max-width: 600px) {
+  .play__screen {
+    justify-content: center;
+  }
+}
+
+
+/* =====================================================================
+   v0.3 — VOTE PANEL  (injected into #spectator-screen by play.js)
+   ===================================================================== */
+
+/* Outer card */
+.play__vote-panel {
+  width: 100%;
+  max-width: 540px;
+  margin-top: var(--sp-5);
+  padding: var(--sp-5);
+  background: var(--bg-elev);
+  border: 1.5px solid var(--line-2);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+/* "Vote for the funniest slide" */
+.play__vote-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* "Album 2 / 5" */
+.play__vote-album-info {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-top: calc(-1 * var(--sp-3));
+}
+
+/* Grid of vote option cards */
+.play__vote-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+}
+
+/* Single votable card */
+.play__vote-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 120px;
+  padding: var(--sp-2) var(--sp-2) var(--sp-3);
+  background: var(--bg);
+  border: 2px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--ink-dim);
+  text-align: center;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.play__vote-option:hover {
+  transform: translateY(-3px);
+  border-color: var(--ink-dim);
+  box-shadow: var(--reveal-shadow);
+}
+
+.play__vote-option:active {
+  transform: translateY(0) !important;
+  box-shadow: none !important;
+}
+
+/* Non-votable system slide — same layout, not interactive */
+.play__vote-option--system {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.play__vote-option--system:hover {
+  transform: none;
+  border-color: var(--line-2);
+  box-shadow: none;
+}
+
+/* Selected state — accent border + checkmark */
+.play__vote-option--selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.play__vote-option--selected::after {
+  content: '✓';
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: var(--accent);
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Thumbnail — image (drawing slides) */
+.play__vote-thumb {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 4px;
+  background: #fff;
+}
+
+/* Thumbnail — text (write slides): render as a small text preview box */
+.play__vote-thumb--text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  padding: var(--sp-2);
+  background: var(--bg-elev-2);
+  border-radius: 4px;
+  font-size: 0.7rem;
+  color: var(--ink-dim);
+  text-align: center;
+  overflow: hidden;
+  word-break: break-word;
+  line-height: 1.3;
+  font-style: italic;
+}
+
+/* Vote count badge — bottom-right pill */
+.play__vote-count {
+  position: absolute;
+  bottom: 4px;
+  right: 6px;
+  min-width: 18px;
+  padding: 1px 5px;
+  background: var(--vote-badge-bg);
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  border-radius: 100px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: center;
+  line-height: 1.5;
+  pointer-events: none;
+}
+
+/* Author chip inside vote option */
+.play__vote-author {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--ink-dim);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Empty state */
+.play__vote-empty {
+  font-size: 0.85rem;
+  color: var(--ink-xdim);
+  font-style: italic;
+}
+
+
+/* =====================================================================
+   v0.3 — HOST VOTE TALLY PANEL  (#m-vote-tally)
+   ===================================================================== */
+
+#m-vote-tally {
+  margin-top: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--bg-elev);
+  border: 1.5px solid var(--line-2);
+  border-radius: var(--radius);
+}
+
+.host__vote-tally-title {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--sp-3);
+}
+
+.host__vote-tally-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+
+/* =====================================================================
+   v0.3 — HOST WINNERS GALLERY  (#m-winners-gallery)
+   ===================================================================== */
+
+#m-winners-gallery {
+  margin-top: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--bg-elev);
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+.host__winners-gallery-title {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  margin-bottom: var(--sp-4);
+}
+
+.host__winners-gallery-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--sp-4);
+}
+
+/* Individual winner card */
+.album-winners__card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  border: 2px solid var(--line-2);
+  border-radius: var(--reveal-tile-radius);
+  overflow: hidden;
+  box-shadow: var(--reveal-shadow);
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.album-winners__card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--winner-glow), var(--reveal-shadow);
+}
+
+.album-winners__card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: #fff;
+}
+
+.album-winners__card-author {
+  padding: var(--sp-2) var(--sp-3);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+  border-top: 1px solid var(--line);
+}
+
+.album-winners__card-label {
+  padding: var(--sp-1) var(--sp-3) var(--sp-2);
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+
+/* =====================================================================
+   v0.3 — ALBUM VOTE BADGES  (reveal layouts in album.js / host album.js)
+   ===================================================================== */
+
+/* Inline vote count pill next to author chip */
+.reveal-vote-badge {
+  display: inline-block;
+  background: var(--vote-badge-bg);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 1px 7px;
+  border-radius: 100px;
+  margin-left: var(--sp-2);
+  vertical-align: middle;
+}
+
+/* Winner tile in gallery layout — accent border + trophy overlay */
+.reveal-gallery__tile--winner {
+  border-color: var(--accent) !important;
+  box-shadow: var(--winner-glow), var(--reveal-shadow) !important;
+  position: relative;
+}
+
+.reveal-gallery__tile--winner::after {
+  content: '\1F3C6'; /* 🏆 */
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  font-size: 1.25rem;
+  line-height: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.6));
+}
+
+
+/* =====================================================================
+   v0.3 — HOST PLAYER KICK BUTTON
+   ===================================================================== */
+
+.host__player-kick {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-2);
+  background: transparent;
+  color: var(--ink-xdim);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.4;
+  flex-shrink: 0;
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+
+.host__player-kick:hover {
+  opacity: 1;
+  color: var(--danger);
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+.host__player-kick:active {
+  transform: scale(0.92);
+}
+
+
+/* =====================================================================
+   v0.3 — CUSTOM PROMPTS TEXTAREA  (#m-custom-prompts)
+   ===================================================================== */
+
+#m-custom-prompts {
+  width: 100%;
+  min-height: 96px;
+  padding: 0.6rem 0.75rem;
+  background: var(--bg);
+  border: 1.5px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  resize: vertical;
+  outline: none;
+  display: block;
+  margin-top: var(--sp-2);
+  transition: border-color var(--dur-normal) var(--ease-out);
+}
+
+#m-custom-prompts:focus {
+  border-color: var(--accent);
+}
+
+#m-custom-prompts::placeholder {
+  color: var(--ink-xdim);
+  font-style: italic;
+}
+
+/* Hint text below textarea */
+.host__field-hint {
+  margin-top: var(--sp-1);
+  font-size: 0.72rem;
+  color: var(--ink-xdim);
+  font-style: italic;
+  line-height: 1.4;
+}
+
+
+/* =====================================================================
+   v0.3 — SOUND TOGGLE
+   ===================================================================== */
+
+.sound-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  position: fixed;
+  bottom: var(--sp-4);
+  right: var(--sp-4);
+  padding: var(--sp-1) var(--sp-3);
+  background: var(--bg-elev);
+  border: 1.5px solid var(--line-2);
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ink-xdim);
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+  z-index: 50;
+  transition:
+    border-color var(--dur-normal) var(--ease-out),
+    color var(--dur-normal) var(--ease-out);
+}
+
+.sound-toggle:hover {
+  border-color: var(--ink-dim);
+  color: var(--ink-dim);
+}
+
+.sound-toggle input[type='checkbox'] {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+
+/* =====================================================================
+   v0.3 — KICKED BANNER  (injected by play.js FIX-B)
+   ===================================================================== */
+
+/* Full-screen overlay — id=kicked-overlay, CSS via class */
+#kicked-overlay,
+.kicked-banner {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-5);
+  background: rgba(11, 11, 15, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: var(--sp-7) var(--sp-5);
+  text-align: center;
+  animation: kickedReveal var(--dur-slow) var(--ease-out) both;
+}
+
+@keyframes kickedReveal {
+  from { opacity: 0; transform: scale(1.04); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.kicked-banner__title,
+#kicked-overlay .kicked-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 7vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--danger);
+  line-height: 1.1;
+}
+
+.kicked-banner__reason,
+#kicked-overlay .kicked-reason {
+  font-size: 1rem;
+  color: var(--ink-dim);
+  max-width: 380px;
+  line-height: 1.6;
+}
+
+.kicked-banner__countdown,
+#kicked-overlay .kicked-countdown {
+  font-family: var(--font-mono);
+  font-size: clamp(3rem, 15vw, 5rem);
+  font-weight: 700;
+  color: var(--ink-xdim);
+  line-height: 1;
+}
+
+
+/* =====================================================================
+   v0.3 — ALBUM DOWNLOAD BUTTON  (#album-download-btn)
+   album.js applies inline style; use ID to override with equal specificity.
+   ===================================================================== */
+
+#album-download-btn,
+.album-download-btn {
+  display: block !important;
+  margin: 0 auto var(--sp-4) auto !important;
+  padding: 0.65rem 1.4rem !important;
+  background: var(--accent) !important;
+  color: #000 !important;
+  border: 2px solid var(--accent) !important;
+  border-radius: var(--radius-sm) !important;
+  font-family: var(--font-display) !important;
+  font-size: 0.875rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  cursor: pointer !important;
+  box-shadow: var(--shadow-accent) !important;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out) !important;
+}
+
+#album-download-btn:hover,
+.album-download-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 6px 6px 0 0 var(--accent) !important;
+}
+
+#album-download-btn:active,
+.album-download-btn:active {
+  transform: translateY(1px) !important;
+  box-shadow: none !important;
+}
+
+
+/* =====================================================================
+   v0.3 — PREFERS-REDUCED-MOTION OVERRIDES
+   ===================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Vote options — no lift on hover */
+  .play__vote-option {
+    transition: none;
+  }
+  .play__vote-option:hover {
+    transform: none;
+  }
+
+  /* Winners gallery card — no hover lift */
+  .album-winners__card {
+    transition: none;
+  }
+  .album-winners__card:hover {
+    transform: none;
+  }
+
+  /* Reveal gallery winner tile — keep the border/glow but remove scale */
+  .reveal-gallery__tile--winner {
+    /* inherits tile's transition:none from existing reduced-motion rule */
+  }
+
+  /* Kicked overlay — no scale animation */
+  #kicked-overlay,
+  .kicked-banner {
+    animation: none;
+  }
+
+  /* Download button — no lift */
+  #album-download-btn,
+  .album-download-btn {
+    transition: none !important;
+  }
+  #album-download-btn:hover,
+  .album-download-btn:hover {
+    transform: none !important;
+  }
+
+  /* Sound toggle — no transition */
+  .sound-toggle {
+    transition: none;
+  }
+}
