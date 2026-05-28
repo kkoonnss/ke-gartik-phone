@@ -7,6 +7,11 @@
  * Expects the server to already be running on localhost:3000.
  * Exit 0 on full pass, exit 1 on any failure.
  *
+ * v0.5 additions (Fix B):
+ *   - Classic structure assertion: 3 albums × 3 slides for N=3 players.
+ *   - Reveal nav round-trip: next-to-end → prev → assert state='reveal' + reveal:slide
+ *     re-emitted → next-to-end again. Tests the v0.5 guard fix in server/game.js.
+ *
  * Usage:
  *   node tests/smoke.js
  *   npm test
@@ -456,7 +461,33 @@ async function testMode(mode) {
     errors.push(`reveal:next triggered server errors: ${revealNextErrors.join(', ')}`);
   }
 
-  // -- 10. Cleanup -----------------------------------------------------------
+  // -- 10. Classic-specific: structure assertion (v0.5 Fix B) ----------------
+  // For classic with N=3 players: assert 3 albums, each 3 slides.
+  // albumCount and totalSlides were populated either from room:state.albums
+  // (serialized when state='reveal'/'ended') or from reveal:slide/reveal:album payloads.
+  if (mode === 'classic') {
+    const expectedAlbums = 3;
+    const expectedSlidesPerAlbum = 3;
+    const expectedTotal = expectedAlbums * expectedSlidesPerAlbum;
+
+    if (albumCount === null || albumCount === undefined) {
+      errors.push(`Classic structure FAIL: albumCount not received (no albums in room:state or reveal payloads)`);
+    } else if (albumCount !== expectedAlbums) {
+      errors.push(`Classic structure FAIL: expected ${expectedAlbums} albums, got ${albumCount}`);
+    } else {
+      notes.push(`Classic structure PASS: albumCount=${albumCount} (expected ${expectedAlbums})`);
+    }
+
+    if (totalSlides === null || totalSlides === undefined) {
+      errors.push(`Classic structure FAIL: totalSlides not received`);
+    } else if (totalSlides !== expectedTotal) {
+      errors.push(`Classic structure FAIL: expected ${expectedTotal} total slides (${expectedAlbums}×${expectedSlidesPerAlbum}), got ${totalSlides}`);
+    } else {
+      notes.push(`Classic structure PASS: totalSlides=${totalSlides} (expected ${expectedTotal})`);
+    }
+  }
+
+  // -- 11. Cleanup -----------------------------------------------------------
   disconnectAll(sockets);
 
   const durationMs = Date.now() - tStart;
@@ -468,6 +499,205 @@ async function testMode(mode) {
     revealLayout,
     albumCount,
     totalSlides,
+    notes: pass ? notes : [...notes, ...errors],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// v0.5 Fix B: Reveal nav round-trip test (classic mode, stepper layout)
+// Walks reveal:next to 'ended', then prev → assert 'reveal' + reveal:slide,
+// then next again → assert can reach 'ended' once more.
+// ---------------------------------------------------------------------------
+async function testRevealNavRoundTrip() {
+  const STEP_TIMEOUT = 5000;
+  const errors  = [];
+  const notes   = [];
+  const sockets = [];
+
+  const tStart = Date.now();
+
+  // -- Connect 3 clients --
+  let sockA, sockB, sockC;
+  try {
+    [sockA, sockB, sockC] = await Promise.all([connect(), connect(), connect()]);
+    sockets.push(sockA, sockB, sockC);
+  } catch (e) {
+    return { pass: false, notes: [`Connect failed: ${e.message}`] };
+  }
+
+  // -- Create room + join --
+  let code, playerIdA, playerIdB, playerIdC;
+  try {
+    const ackA = await emitAck(sockA, 'room:create', { name: 'NavA', emoji: '🎨' });
+    if (!ackA || !ackA.ok) throw new Error(`room:create failed: ${JSON.stringify(ackA)}`);
+    code      = ackA.code;
+    playerIdA = ackA.playerId;
+
+    const [ackB, ackC] = await Promise.all([
+      emitAck(sockB, 'room:join', { code, name: 'NavB', emoji: '🐙' }),
+      emitAck(sockC, 'room:join', { code, name: 'NavC', emoji: '🦊' }),
+    ]);
+    if (!ackB || !ackB.ok) throw new Error(`NavB join failed: ${JSON.stringify(ackB)}`);
+    if (!ackC || !ackC.ok) throw new Error(`NavC join failed: ${JSON.stringify(ackC)}`);
+    playerIdB = ackB.playerId;
+    playerIdC = ackC.playerId;
+  } catch (e) {
+    disconnectAll(sockets);
+    return { pass: false, notes: [`Room setup error: ${e.message}`] };
+  }
+
+  // -- Configure classic --
+  sockA.emit('room:settings', {
+    mode: 'classic',
+    writeSeconds: 20,
+    drawSeconds: 30,
+    describeSeconds: 15,
+  });
+  await new Promise(r => setTimeout(r, 100));
+
+  // -- Wire up phase:assignment handlers for all 3 players --
+  const submitHandler = (sock, name) => (data) => {
+    if (data.phase === 'knockoff-show') return;
+    let content;
+    if (DRAW_PHASES.has(data.phase)) {
+      content = TINY_JPEG;
+    } else {
+      content = `Nav text from ${name} round ${data.round}`;
+    }
+    sock.emit('phase:submit', { phase: data.phase, round: data.round, content });
+  };
+  sockA.on('phase:assignment', submitHandler(sockA, 'NavA'));
+  sockB.on('phase:assignment', submitHandler(sockB, 'NavB'));
+  sockC.on('phase:assignment', submitHandler(sockC, 'NavC'));
+
+  // -- Start game --
+  sockA.emit('game:start');
+
+  // -- Wait for reveal state --
+  try {
+    await waitForEvent(
+      sockA,
+      'room:state',
+      (state) => state.state === 'reveal' || state.state === 'ended',
+      PER_MODE_TIMEOUT_MS,
+    );
+  } catch (e) {
+    disconnectAll(sockets);
+    return { pass: false, notes: [`Reveal not reached: ${e.message}`] };
+  }
+  notes.push('Reached reveal state');
+
+  // -- Step 1: Walk reveal:next to 'ended' --
+  // Classic with 3 players: 3 albums × 3 slides = 9 steps max.
+  // Emit next until room:state shows 'ended', with a cap of 15 steps to avoid hang.
+  let reachedEnded = false;
+  for (let i = 0; i < 15; i++) {
+    // Set up a race: either room:state arrives with 'ended', or we time out waiting.
+    const statePromise = waitForEvent(
+      sockA,
+      'room:state',
+      (s) => s.state === 'ended' || s.state === 'reveal',
+      STEP_TIMEOUT,
+    );
+    sockA.emit('reveal:next');
+    let stateAfterNext;
+    try {
+      stateAfterNext = await statePromise;
+    } catch (e) {
+      // Timeout on this step — may have been a no-op (gallery) or last slide; try a short poll
+      stateAfterNext = null;
+    }
+    if (stateAfterNext && stateAfterNext.state === 'ended') {
+      reachedEnded = true;
+      notes.push(`Reached 'ended' after ${i + 1} reveal:next(s)`);
+      break;
+    }
+  }
+
+  if (!reachedEnded) {
+    disconnectAll(sockets);
+    return {
+      pass: false,
+      notes: [...notes, `Reveal nav round-trip FAIL: could not reach 'ended' state by stepping reveal:next`],
+    };
+  }
+
+  // -- Step 2: Emit reveal:prev once, assert state returns to 'reveal' AND reveal:slide fires --
+  let prevRestoredReveal = false;
+  let prevSlideEmitted   = false;
+
+  // Race: listen for room:state='reveal' AND reveal:slide, with timeout.
+  const prevStatePromise = waitForEvent(
+    sockA,
+    'room:state',
+    (s) => s.state === 'reveal',
+    STEP_TIMEOUT,
+  ).then(s => { prevRestoredReveal = true; return s; });
+
+  const prevSlidePromise = waitForEvent(
+    sockA,
+    'reveal:slide',
+    null,   // any reveal:slide is fine
+    STEP_TIMEOUT,
+  ).then(s => { prevSlideEmitted = true; return s; });
+
+  sockA.emit('reveal:prev');
+
+  // Wait for both (or timeout on each independently)
+  await Promise.allSettled([prevStatePromise, prevSlidePromise]);
+
+  if (!prevRestoredReveal) {
+    errors.push(
+      `Reveal nav FAIL: reveal:prev did not restore 'reveal' state (v0.5 fix not deployed?)`,
+    );
+  } else {
+    notes.push(`Reveal nav PASS: reveal:prev from 'ended' restored state to 'reveal'`);
+  }
+
+  if (!prevSlideEmitted) {
+    errors.push(
+      `Reveal nav FAIL: reveal:prev did not re-emit reveal:slide (v0.5 fix not deployed?)`,
+    );
+  } else {
+    notes.push(`Reveal nav PASS: reveal:slide re-emitted after reveal:prev from 'ended'`);
+  }
+
+  // Only continue the 3rd step if the first two passed
+  if (errors.length === 0) {
+    // -- Step 3: reveal:next again — confirm it can still reach 'ended' --
+    let reachedEndedAgain = false;
+    for (let i = 0; i < 15; i++) {
+      const statePromise2 = waitForEvent(
+        sockA,
+        'room:state',
+        (s) => s.state === 'ended' || s.state === 'reveal',
+        STEP_TIMEOUT,
+      );
+      sockA.emit('reveal:next');
+      let s2;
+      try {
+        s2 = await statePromise2;
+      } catch (_) {
+        s2 = null;
+      }
+      if (s2 && s2.state === 'ended') {
+        reachedEndedAgain = true;
+        notes.push(`Reveal nav PASS: reveal:next after reveal:prev reached 'ended' again (step ${i + 1})`);
+        break;
+      }
+    }
+    if (!reachedEndedAgain) {
+      errors.push(
+        `Reveal nav FAIL: reveal:next after reveal:prev could not reach 'ended' again`,
+      );
+    }
+  }
+
+  disconnectAll(sockets);
+  const pass = errors.length === 0;
+  return {
+    pass,
+    durationMs: Date.now() - tStart,
     notes: pass ? notes : [...notes, ...errors],
   };
 }
@@ -556,7 +786,40 @@ async function main() {
   console.log(`RESULT: ${passCount}/${modes.length} PASSED`);
   console.log('');
 
-  process.exit(passCount === modes.length ? 0 : 1);
+  // -------------------------------------------------------------------------
+  // v0.5 Fix B — Extra: Reveal nav round-trip test (classic, stepper layout)
+  // Run after the main mode loop so it doesn't affect per-mode pass/fail counts.
+  // -------------------------------------------------------------------------
+  console.log('--- v0.5 Reveal Navigation Round-Trip ---');
+  process.stdout.write('Testing reveal:prev from ended state... ');
+
+  let navResult;
+  try {
+    navResult = await testRevealNavRoundTrip();
+  } catch (e) {
+    navResult = {
+      pass: false,
+      notes: [`Uncaught exception: ${e.message}`, e.stack],
+    };
+  }
+
+  const navSecs = navResult.durationMs ? (navResult.durationMs / 1000).toFixed(1) : '?';
+  if (navResult.pass) {
+    console.log(`PASS  (${navSecs}s)`);
+    for (const note of (navResult.notes || [])) {
+      console.log(`  ${note}`);
+    }
+  } else {
+    console.log('FAIL');
+    for (const note of (navResult.notes || [])) {
+      console.log(`  ${note}`);
+    }
+  }
+
+  console.log('');
+
+  const allPassed = passCount === modes.length && navResult.pass;
+  process.exit(allPassed ? 0 : 1);
 }
 
 main().catch((e) => {

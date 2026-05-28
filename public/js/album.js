@@ -13,6 +13,17 @@ import {
 } from '/js/socket-client.js';
 
 // ---------------------------------------------------------------------------
+// Archive save hook (HOST branch only) — imported lazily so phone/album pages
+// are never burdened by the IndexedDB module.
+// ---------------------------------------------------------------------------
+import { saveGame } from '/js/album-store.js';
+
+// Dedupe guard: tracks the last saved game signature so the same game is not
+// saved again on subsequent room:state events during the reveal.
+// Format: "<code>:<albumCount>:<firstAlbumLength>" or null.
+let _archivedSignature = null;
+
+// ---------------------------------------------------------------------------
 // Shared slide rendering helper (stepper only)
 // ---------------------------------------------------------------------------
 
@@ -575,6 +586,41 @@ if (isHostPage) {
         albumIdx: entry.albumIdx,
         votes: entry.totals || [],
       }));
+    }
+
+    // -----------------------------------------------------------------------
+    // Archive save hook — save completed game to IndexedDB ONCE per game.
+    // Only fires when reveal or ended with actual album data present.
+    // -----------------------------------------------------------------------
+    if (inReveal && state.albums && state.albums.length) {
+      const firstAlbumLength = Array.isArray(state.albums[0])
+        ? state.albums[0].length
+        : (state.albums[0] && state.albums[0].slides ? state.albums[0].slides.length : 0);
+      const sig = `${state.code}:${state.albums.length}:${firstAlbumLength}`;
+      if (sig !== _archivedSignature) {
+        _archivedSignature = sig;
+        try {
+          saveGame({
+            code: state.code,
+            mode: (state.settings && state.settings.mode) || 'classic',
+            playedAt: Date.now(),
+            players: (state.players || []).map((p) => ({
+              id: p.id,
+              name: p.name,
+              emoji: p.emoji,
+              color: p.color,
+            })),
+            albums: state.albums,
+          }).catch((err) => {
+            console.warn('[album] saveGame failed (non-fatal):', err);
+          });
+        } catch (err) {
+          console.warn('[album] saveGame threw (non-fatal):', err);
+        }
+      }
+    } else if (state.state === 'lobby' || state.state === 'playing') {
+      // New game starting — clear the dedupe guard so the next reveal saves fresh.
+      _archivedSignature = null;
     }
 
     if (inReveal) {

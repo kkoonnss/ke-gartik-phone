@@ -688,7 +688,7 @@ function attachGame(io) {
       const ctx = socketMap.get(socket.id);
       if (!ctx) return;
       const room = getRoom(ctx.roomCode);
-      if (!room || room.state !== 'reveal') return;
+      if (!room || (room.state !== 'reveal' && room.state !== 'ended')) return;
       const player = getPlayer(room, ctx.playerId);
       if (!player || !player.isHost) {
         return emitError(socket, 'NOT_HOST', 'Only the host can advance reveal');
@@ -741,7 +741,7 @@ function attachGame(io) {
       const ctx = socketMap.get(socket.id);
       if (!ctx) return;
       const room = getRoom(ctx.roomCode);
-      if (!room || room.state !== 'reveal') return;
+      if (!room || (room.state !== 'reveal' && room.state !== 'ended')) return;
       const player = getPlayer(room, ctx.playerId);
       if (!player || !player.isHost) {
         return emitError(socket, 'NOT_HOST', 'Only the host can navigate reveal');
@@ -751,6 +751,8 @@ function attachGame(io) {
       const { albumIdx, slideIdx } = room.revealCursor;
 
       if (layout === 'stepper') {
+        // Navigating backward from 'ended' always re-enters review mode
+        if (room.state === 'ended') room.state = 'reveal';
         if (slideIdx > 0) {
           room.revealCursor.slideIdx = slideIdx - 1;
         } else if (albumIdx > 0) {
@@ -758,22 +760,30 @@ function attachGame(io) {
           room.revealCursor.albumIdx = albumIdx - 1;
           room.revealCursor.slideIdx = prevAlbum.length - 1;
         }
+        // PREV at slide 0 of album 0: state stays 'reveal', cursor unchanged — clamp
         broadcastState(io, room);
         emitRevealSlide(io, room);
 
       } else if (layout === 'gallery') {
-        // no-op
+        // Single album, no-op — but restore state if ended so UI re-enters review
+        if (room.state === 'ended') room.state = 'reveal';
         broadcastState(io, room);
 
       } else {
         // frame-cycle, scrollback: step album-by-album
         if (albumIdx > 0) {
+          // Navigating backward from 'ended' always re-enters review mode
+          if (room.state === 'ended') room.state = 'reveal';
           room.revealCursor.albumIdx = albumIdx - 1;
           room.revealCursor.slideIdx = 0;
           broadcastState(io, room);
           emitRevealAlbum(io, room, room.revealCursor.albumIdx);
+        } else {
+          // At album 0 — clamp; if ended, still re-enter reveal so host can review
+          if (room.state === 'ended') room.state = 'reveal';
+          broadcastState(io, room);
+          emitRevealAlbum(io, room, albumIdx);
         }
-        // If at start, do nothing
       }
     });
 

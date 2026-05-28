@@ -727,6 +727,63 @@ body.play {
   transform: scale(1.1);
 }
 
+/* ===== v0.5 — TOOL SELECTOR BUTTONS ===== */
+
+/* Toolbar rows — each tool/color/brush/action group sits in a flex row */
+.play__toolbar-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Tool mode buttons (brush / fill / rect / ellipse / line) */
+.play__tool {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--line-2);
+  background: var(--bg);
+  color: var(--ink-dim);
+  cursor: pointer;
+  padding: 5px;
+  flex-shrink: 0;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.play__tool svg {
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.play__tool:hover {
+  border-color: var(--ink-dim);
+  color: var(--ink);
+  transform: scale(1.08);
+}
+
+/* Active tool — accent yellow highlight */
+.play__tool.active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 15%, var(--bg));
+  color: var(--accent);
+  transform: scale(1.05);
+}
+
+/* ===== END v0.5 TOOL BUTTONS ===== */
+
 /* Image display */
 .play__image {
   width: 100%;
@@ -1151,6 +1208,85 @@ body.album {
   border-color: var(--ink-dim);
   color: var(--ink);
   background: var(--bg-elev-2);
+}
+
+/* ---- BEM-named secret reorder list (v6 polish) ------------------------- */
+
+/* Row container */
+.host__secret-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--bg-elev);
+  border: 1.5px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  user-select: none;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background   var(--dur-fast) var(--ease-out),
+    opacity      var(--dur-fast) var(--ease-out);
+}
+
+.host__secret-item:active {
+  cursor: grabbing;
+}
+
+.host__secret-item:hover {
+  border-color: var(--ink-xdim);
+  background: var(--bg-elev-2);
+}
+
+/* Up/Down arrow buttons */
+.host__secret-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--line-2);
+  background: transparent;
+  color: var(--ink-xdim);
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    color        var(--dur-fast) var(--ease-out),
+    background   var(--dur-fast) var(--ease-out);
+}
+
+.host__secret-arrow:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.host__secret-arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Emoji + name label — takes remaining space */
+.host__secret-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+/* Drag-in-progress feedback */
+.host__secret-item--dragging {
+  opacity: 0.55;
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
 /* Speedrun preset button — ghost, subtle pulse */
@@ -2198,5 +2334,533 @@ body.album {
   /* Sound toggle — no transition */
   .sound-toggle {
     transition: none;
+  }
+}
+
+
+/* =====================================================================
+   v0.6 — PAST ALBUMS ARCHIVE PAGE  (past.html)
+   ===================================================================== */
+
+/* Page container — centred column, generous breathing room */
+.archive {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--sp-6) var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  min-height: 100dvh;
+}
+
+/* Back link — small unobtrusive anchor at page top */
+.archive__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  text-decoration: none;
+  transition: color var(--dur-normal) var(--ease-out);
+  align-self: flex-start;
+}
+
+.archive__back:hover {
+  color: var(--accent);
+}
+
+/* Responsive card grid — auto-fill ~260 px, single column on phones */
+.archive__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--sp-5);
+}
+
+/* Individual game-night card */
+.archive__card {
+  background: var(--bg-elev);
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  box-shadow: var(--shadow-hard);
+  transition:
+    transform var(--dur-normal) var(--ease-out),
+    box-shadow var(--dur-normal) var(--ease-out),
+    border-color var(--dur-normal) var(--ease-out);
+}
+
+.archive__card:hover {
+  transform: translateY(-4px);
+  border-color: var(--line-2);
+  box-shadow: 6px 6px 0 0 rgba(0, 0, 0, 0.9);
+}
+
+/* Mode name — bold display heading */
+.archive__card-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+  line-height: 1.1;
+}
+
+/* Meta row — date, player count, album count (dim small caps) */
+.archive__card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+}
+
+/* Room code inside meta — mono accent */
+.archive__card-meta .archive__code {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  color: var(--ink-xdim);
+  text-transform: uppercase;
+}
+
+/* Button row inside card */
+.archive__card-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: auto;
+}
+
+/* Replay — primary accent button matching host__button--primary */
+.archive__replay-btn {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--accent);
+  color: #000;
+  border: 2px solid var(--accent);
+  cursor: pointer;
+  box-shadow: var(--shadow-accent);
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.archive__replay-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0 0 var(--accent);
+}
+
+.archive__replay-btn:active {
+  transform: translateY(1px) !important;
+  box-shadow: none !important;
+}
+
+/* Delete — subtle × that turns red on hover */
+.archive__delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--line-2);
+  background: transparent;
+  color: var(--ink-xdim);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+
+.archive__delete:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+.archive__delete:active {
+  transform: scale(0.92);
+}
+
+/* Empty state — centered dim message when no saved games */
+.archive__empty {
+  text-align: center;
+  color: var(--ink-xdim);
+  font-size: 0.9rem;
+  font-style: italic;
+  padding: var(--sp-8) var(--sp-5);
+  line-height: 1.6;
+}
+
+/* ---- Replay viewport -------------------------------------------------- */
+
+/* Outer container — full-width panel, visually separated */
+.archive__replay {
+  width: 100%;
+  background: var(--bg-elev);
+  border: 2px solid var(--line-2);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-6) var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  animation: fadeIn var(--dur-slow) var(--ease-out) both;
+}
+
+/* Replay header row — album X/Y counter + close button */
+.archive__replay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.archive__replay-counter {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+/* Individual slide display — images + text large and legible */
+.archive__slide {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-5);
+  min-height: 320px;
+  background: var(--bg);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--sp-6) var(--sp-5);
+  animation: fadeIn var(--dur-slow) var(--ease-out) both;
+}
+
+/* Drawing slide — image fills the card */
+.archive__slide img {
+  max-width: 100%;
+  max-height: 480px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--accent);
+  box-shadow: var(--shadow-accent);
+  display: block;
+}
+
+/* Text slide — big bold display text */
+.archive__slide-text {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 4vw, 2.25rem);
+  font-weight: 700;
+  text-align: center;
+  color: var(--ink);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  max-width: 640px;
+}
+
+/* =====================================================================
+   v6 pre-playtest polish — Draw banner
+   ===================================================================== */
+
+/* Base: subtle inset info bar above the submit button */
+.play__draw-banner {
+  width: 100%;
+  padding: var(--sp-2) var(--sp-4);
+  background: color-mix(in srgb, var(--ink-xdim) 10%, var(--bg-elev));
+  border: 1.5px solid color-mix(in srgb, var(--ink-xdim) 30%, transparent);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ink-dim);
+  text-align: center;
+  letter-spacing: 0.03em;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+/* No-limit variant — green tint (matches --accent-3 / --success) */
+.play__draw-banner--no-limit {
+  background: color-mix(in srgb, var(--accent-3) 10%, var(--bg-elev));
+  border-color: color-mix(in srgb, var(--accent-3) 35%, transparent);
+  color: var(--accent-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .play__draw-banner {
+    transition: none;
+  }
+}
+
+/* Author attribution chip below slide content */
+.archive__slide-author {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--bg-elev);
+  border: 1.5px solid var(--line-2);
+  border-radius: 100px;
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+}
+
+/* Prev/Next navigation row */
+.archive__nav {
+  display: flex;
+  gap: var(--sp-3);
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.archive__nav-btn {
+  min-width: 100px;
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 2px solid var(--line-2);
+  background: transparent;
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast),
+    color var(--dur-fast),
+    box-shadow var(--dur-fast);
+}
+
+.archive__nav-btn:hover {
+  border-color: var(--ink-dim);
+  color: var(--ink);
+  transform: translateY(-2px);
+}
+
+.archive__nav-btn:active {
+  transform: translateY(1px) !important;
+  box-shadow: none !important;
+}
+
+.archive__nav-btn--primary {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-accent);
+}
+
+.archive__nav-btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0 0 var(--accent);
+}
+
+/* Slide position indicator */
+.archive__slide-pos {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-xdim);
+  text-align: center;
+}
+
+/* ---- Page header row -------------------------------------------------- */
+
+/* Header: title + back link side-by-side */
+.archive__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  padding-bottom: var(--sp-5);
+  border-bottom: 1.5px solid var(--line);
+}
+
+/* Page title — punchy display heading matching .archive__card-title style */
+.archive__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  line-height: 1.1;
+}
+
+/* ---- Main content wrapper --------------------------------------------- */
+
+/* archive__main already inherits column layout from body.archive flex;
+   add a small top gap to breathe below the header */
+.archive__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  width: 100%;
+}
+
+/* ---- Nav label (Album X / Y · Slide N / M) ---------------------------- */
+
+.archive__nav-label {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-xdim);
+  text-align: center;
+  flex: 1;                /* take remaining space between the two nav buttons */
+}
+
+/* ---- Drawing slide image ---------------------------------------------- */
+
+/* past.js emits <img class="archive__slide-img"> for drawing slides;
+   cap it so it never blows the layout, match .archive__slide img styling */
+.archive__slide-img {
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  max-height: 60vh;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--accent);
+  box-shadow: var(--shadow-accent);
+  display: block;
+  margin: 0 auto;
+}
+
+/* ---- Card meta child elements ----------------------------------------- */
+
+/* Mode name — bold, accent colour so it reads as the primary label */
+.archive__card-meta-mode {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* Date — dim, small, below mode */
+.archive__card-meta-date {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--ink-xdim);
+  letter-spacing: 0.04em;
+}
+
+/* Players / albums counts — dim small caps */
+.archive__card-meta-counts {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+}
+
+/* ---- prefers-reduced-motion guard for archive transitions -------------- */
+@media (prefers-reduced-motion: reduce) {
+  .archive__card,
+  .archive__replay-btn,
+  .archive__delete,
+  .archive__nav-btn {
+    transition: none !important;
+  }
+}
+
+
+/* =====================================================================
+   v0.6 — HOST__PAST-LINK  (host.html + index.html nav)
+   ===================================================================== */
+
+/* Small unobtrusive "Past Albums" link in host header / lobby */
+.host__past-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-xdim);
+  text-decoration: none;
+  transition: color var(--dur-normal) var(--ease-out);
+  white-space: nowrap;
+}
+
+.host__past-link:hover {
+  color: var(--accent);
+}
+
+
+/* =====================================================================
+   v0.6 — PREFERS-REDUCED-MOTION for archive
+   ===================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .archive__card {
+    transition: none;
+  }
+  .archive__card:hover {
+    transform: none;
+    box-shadow: var(--shadow-hard);
+  }
+
+  .archive__replay-btn {
+    transition: none;
+  }
+  .archive__replay-btn:hover {
+    transform: none;
+    box-shadow: var(--shadow-accent);
+  }
+
+  .archive__delete {
+    transition: none;
+  }
+
+  .archive__replay {
+    animation: none;
+  }
+
+  .archive__slide {
+    animation: none;
+  }
+
+  .archive__nav-btn {
+    transition: none;
+  }
+  .archive__nav-btn:hover {
+    transform: none;
   }
 }

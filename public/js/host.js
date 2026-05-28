@@ -278,6 +278,7 @@ function applyModeSubPanels(mode) {
   mBgPickerWrap.hidden      = (mode !== 'background');
   mSecretOrderWrap.hidden   = (mode !== 'secret');
   if (mAnimationFpsWrap) mAnimationFpsWrap.hidden = (mode !== 'animation');
+  if (mCustomPromptsWrap) mCustomPromptsWrap.hidden = (mode !== 'solo' && mode !== 'masterpiece' && mode !== 'background');
 
   if (mode === 'background' && !_bgLoaded) {
     loadBackgroundPicker();

@@ -1,4 +1,6 @@
 // canvas.js — Drawing tool module for KE_GartiK_Phone
+// v0.5: Added tool mode (brush / fill / rectangle / ellipse / line)
+//       with live shape preview, flood fill, and full undo integration.
 // FIX-B: Refactored so initCanvas registers pointer listeners exactly ONCE.
 //         A new reset(opts) method clears canvas state + optionally loads a
 //         startImage, without adding any new event listeners.
@@ -15,6 +17,40 @@ const COLORS = [
 const BRUSH_SIZES = [4, 10, 22];
 
 const UNDO_STACK_LIMIT = 20;
+
+// Tool definitions: id, label, SVG icon path (24x24 viewBox)
+const TOOLS = [
+  {
+    id: 'brush',
+    label: 'Brush',
+    // Paintbrush icon
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-.999 2-2 3s1 1 1 1z"/><path d="M9 3H6"/><path d="M3 13c2-.5 4-2 4-4"/></svg>`,
+  },
+  {
+    id: 'fill',
+    label: 'Fill',
+    // Bucket fill icon
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11L7.5 2.5a2 2 0 0 0-2.83 0L2.5 4.67a2 2 0 0 0 0 2.83L11 15"/><path d="M19 11l2.5 2.5a2 2 0 0 1 0 2.83l-1.67 1.67a2 2 0 0 1-2.83 0L14.5 15"/><line x1="11" y1="15" x2="14.5" y2="15"/><path d="M21 21a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1z"/></svg>`,
+  },
+  {
+    id: 'rect',
+    label: 'Rect',
+    // Rectangle icon
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>`,
+  },
+  {
+    id: 'ellipse',
+    label: 'Ellipse',
+    // Circle/ellipse icon
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg>`,
+  },
+  {
+    id: 'line',
+    label: 'Line',
+    // Diagonal line icon
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="21" x2="21" y2="3"/></svg>`,
+  },
+];
 
 /**
  * initCanvas(canvasEl, toolbarEl, opts) → instance
@@ -63,9 +99,15 @@ export function initCanvas(canvasEl, toolbarEl, opts = {}) {
   // --- State ---
   let currentColor = '#111111';
   let currentSize = 4;
+  let currentTool = 'brush';   // 'brush' | 'fill' | 'rect' | 'ellipse' | 'line'
   let isDrawing = false;
   let strokePoints = [];
   const undoStack = [];
+
+  // Shape tool preview state
+  let shapeStartX = 0;
+  let shapeStartY = 0;
+  let shapeSnapshot = null; // ImageData captured at pointerdown for live preview
 
   // --- Scaling helpers ---
   function getScale() {
@@ -100,16 +142,21 @@ export function initCanvas(canvasEl, toolbarEl, opts = {}) {
     ctx.putImageData(imageData, 0, 0);
   }
 
-  // --- Drawing ---
+  // --- Drawing helpers ---
+  function applyStrokeStyle() {
+    ctx.strokeStyle = currentColor;
+    ctx.lineWidth = currentSize;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  }
+
+  // --- Brush stroke ---
   function beginStroke(x, y) {
     saveSnapshot();
     strokePoints = [{ x, y }];
     ctx.beginPath();
     ctx.moveTo(x, y);
-    ctx.strokeStyle = currentColor;
-    ctx.lineWidth = currentSize;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    applyStrokeStyle();
   }
 
   function continueStroke(x, y) {
@@ -127,10 +174,7 @@ export function initCanvas(canvasEl, toolbarEl, opts = {}) {
     ctx.stroke();
     ctx.beginPath();
     ctx.moveTo(midX, midY);
-    ctx.strokeStyle = currentColor;
-    ctx.lineWidth = currentSize;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    applyStrokeStyle();
   }
 
   function endStroke() {
@@ -143,39 +187,250 @@ export function initCanvas(canvasEl, toolbarEl, opts = {}) {
     isDrawing = false;
   }
 
+  // --- Shape drawing (used both for preview and commit) ---
+  function drawShape(tool, x0, y0, x1, y1) {
+    ctx.beginPath();
+    applyStrokeStyle();
+    if (tool === 'rect') {
+      ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+    } else if (tool === 'ellipse') {
+      const cx = (x0 + x1) / 2;
+      const cy = (y0 + y1) / 2;
+      const rx = Math.abs(x1 - x0) / 2;
+      const ry = Math.abs(y1 - y0) / 2;
+      ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    } else if (tool === 'line') {
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+    }
+  }
+
+  // --- Bucket fill (queue-based BFS flood fill, no recursion) ---
+  function floodFill(startX, startY, fillColorHex) {
+    // Parse fill color from hex to RGBA
+    const fr = parseInt(fillColorHex.slice(1, 3), 16);
+    const fg = parseInt(fillColorHex.slice(3, 5), 16);
+    const fb = parseInt(fillColorHex.slice(5, 7), 16);
+    const fa = 255;
+
+    const imageData = ctx.getImageData(0, 0, W, H);
+    const data = imageData.data;
+
+    const sx = Math.floor(startX);
+    const sy = Math.floor(startY);
+
+    // Guard: out of bounds
+    if (sx < 0 || sx >= W || sy < 0 || sy >= H) return;
+
+    const startIdx = (sy * W + sx) * 4;
+    const targetR = data[startIdx];
+    const targetG = data[startIdx + 1];
+    const targetB = data[startIdx + 2];
+    const targetA = data[startIdx + 3];
+
+    // No-op if target color already matches fill color (within tolerance)
+    const TOLERANCE = 32;
+    function colorMatch(idx) {
+      return (
+        Math.abs(data[idx]     - targetR) <= TOLERANCE &&
+        Math.abs(data[idx + 1] - targetG) <= TOLERANCE &&
+        Math.abs(data[idx + 2] - targetB) <= TOLERANCE &&
+        Math.abs(data[idx + 3] - targetA) <= TOLERANCE
+      );
+    }
+
+    // Check if fill color is same as target (no-op guard)
+    if (
+      Math.abs(fr - targetR) <= TOLERANCE &&
+      Math.abs(fg - targetG) <= TOLERANCE &&
+      Math.abs(fb - targetB) <= TOLERANCE
+    ) {
+      return; // already that color — don't infinite-loop
+    }
+
+    // Visited bitset — avoid re-queuing
+    const visited = new Uint8Array(W * H);
+
+    // Queue of pixel indices (using typed array for performance)
+    const queue = new Int32Array(W * H);
+    let qHead = 0;
+    let qTail = 0;
+
+    // Seed
+    const startLinear = sy * W + sx;
+    queue[qTail++] = startLinear;
+    visited[startLinear] = 1;
+
+    while (qHead < qTail) {
+      const linear = queue[qHead++];
+      const px = linear % W;
+      const py = (linear - px) / W;
+      const idx = linear * 4;
+
+      // Paint this pixel
+      data[idx]     = fr;
+      data[idx + 1] = fg;
+      data[idx + 2] = fb;
+      data[idx + 3] = fa;
+
+      // Expand to 4-connected neighbors
+      const neighbors = [
+        px > 0     ? linear - 1 : -1,  // left
+        px < W - 1 ? linear + 1 : -1,  // right
+        py > 0     ? linear - W : -1,  // up
+        py < H - 1 ? linear + W : -1,  // down
+      ];
+
+      for (let i = 0; i < 4; i++) {
+        const n = neighbors[i];
+        if (n < 0 || visited[n]) continue;
+        visited[n] = 1;
+        if (colorMatch(n * 4)) {
+          queue[qTail++] = n;
+        }
+      }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+  }
+
+  // --- Abort any in-progress interaction cleanly ---
+  function abortCurrentInteraction() {
+    if (!isDrawing) return;
+    // For shape tools: restore the snapshot (discard preview)
+    if (shapeSnapshot && (currentTool === 'rect' || currentTool === 'ellipse' || currentTool === 'line')) {
+      // shapeSnapshot was already saved to undoStack — pop it back off
+      // since we're aborting without committing
+      const last = undoStack[undoStack.length - 1];
+      if (last === shapeSnapshot) {
+        undoStack.pop();
+      }
+      ctx.putImageData(shapeSnapshot, 0, 0);
+    }
+    shapeSnapshot = null;
+    strokePoints = [];
+    isDrawing = false;
+  }
+
   // --- Pointer events (registered ONCE for the lifetime of canvasEl) ---
   canvasEl.addEventListener('pointerdown', (e) => {
     e.preventDefault();
     canvasEl.setPointerCapture(e.pointerId);
     isDrawing = true;
     const { x, y } = clientToCanvas(e.clientX, e.clientY);
-    beginStroke(x, y);
+
+    if (currentTool === 'brush') {
+      beginStroke(x, y);
+    } else if (currentTool === 'fill') {
+      // Fill is a single-click action
+      saveSnapshot();
+      floodFill(x, y, currentColor);
+      isDrawing = false; // no drag needed
+    } else {
+      // rect / ellipse / line — capture snapshot for live preview + undo baseline
+      saveSnapshot();
+      shapeSnapshot = undoStack[undoStack.length - 1]; // reference to what we just pushed
+      shapeStartX = x;
+      shapeStartY = y;
+    }
   });
 
   canvasEl.addEventListener('pointermove', (e) => {
     e.preventDefault();
     if (!isDrawing) return;
     const { x, y } = clientToCanvas(e.clientX, e.clientY);
-    continueStroke(x, y);
+
+    if (currentTool === 'brush') {
+      continueStroke(x, y);
+    } else if (currentTool === 'rect' || currentTool === 'ellipse' || currentTool === 'line') {
+      // Restore snapshot and redraw preview shape
+      if (shapeSnapshot) {
+        ctx.putImageData(shapeSnapshot, 0, 0);
+      }
+      drawShape(currentTool, shapeStartX, shapeStartY, x, y);
+    }
+    // fill: no drag needed
   });
 
   canvasEl.addEventListener('pointerup', (e) => {
     e.preventDefault();
     if (!isDrawing) return;
-    endStroke();
+    const { x, y } = clientToCanvas(e.clientX, e.clientY);
+
+    if (currentTool === 'brush') {
+      endStroke();
+    } else if (currentTool === 'rect' || currentTool === 'ellipse' || currentTool === 'line') {
+      // Restore snapshot first (clean slate), then commit the final shape
+      // The snapshot is already on the undo stack from pointerdown
+      if (shapeSnapshot) {
+        ctx.putImageData(shapeSnapshot, 0, 0);
+      }
+      // Only draw if drag was more than a minimal threshold (avoid phantom shapes)
+      const dx = x - shapeStartX;
+      const dy = y - shapeStartY;
+      if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+        drawShape(currentTool, shapeStartX, shapeStartY, x, y);
+      } else {
+        // Zero-drag click — pop the snapshot so undo stack isn't polluted
+        const last = undoStack[undoStack.length - 1];
+        if (last === shapeSnapshot) undoStack.pop();
+      }
+      shapeSnapshot = null;
+      isDrawing = false;
+    }
+    // fill: isDrawing already set false in pointerdown
   });
 
   canvasEl.addEventListener('pointercancel', (e) => {
     e.preventDefault();
     if (!isDrawing) return;
-    endStroke();
+    if (currentTool === 'brush') {
+      endStroke();
+    } else if (currentTool === 'rect' || currentTool === 'ellipse' || currentTool === 'line') {
+      // Abort: restore to pre-shape state and remove the undo entry
+      if (shapeSnapshot) {
+        const last = undoStack[undoStack.length - 1];
+        if (last === shapeSnapshot) undoStack.pop();
+        ctx.putImageData(shapeSnapshot, 0, 0);
+        shapeSnapshot = null;
+      }
+      isDrawing = false;
+    } else {
+      isDrawing = false;
+    }
   });
 
   // --- Toolbar builder (called once by initCanvas and again by reset) ---
   function buildToolbar() {
     toolbarEl.innerHTML = '';
 
-    // Color buttons
+    // --- Row 1: Tool selector ---
+    const toolRow = document.createElement('div');
+    toolRow.className = 'play__toolbar-row play__toolbar-tools';
+
+    TOOLS.forEach((tool) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'play__tool';
+      btn.dataset.tool = tool.id;
+      btn.title = tool.label;
+      btn.setAttribute('aria-label', tool.label);
+      btn.innerHTML = tool.svg;
+      if (tool.id === currentTool) btn.classList.add('active');
+      btn.addEventListener('click', () => {
+        // Abort any in-progress interaction before switching tools
+        abortCurrentInteraction();
+        currentTool = tool.id;
+        toolRow.querySelectorAll('.play__tool').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+      toolRow.appendChild(btn);
+    });
+    toolbarEl.appendChild(toolRow);
+
+    // --- Row 2: Color buttons ---
     const colorRow = document.createElement('div');
     colorRow.className = 'play__toolbar-row play__toolbar-colors';
 
@@ -197,7 +452,7 @@ export function initCanvas(canvasEl, toolbarEl, opts = {}) {
     });
     toolbarEl.appendChild(colorRow);
 
-    // Brush size buttons
+    // --- Row 3: Brush size buttons ---
     const brushRow = document.createElement('div');
     brushRow.className = 'play__toolbar-row play__toolbar-brushes';
 
@@ -228,7 +483,7 @@ export function initCanvas(canvasEl, toolbarEl, opts = {}) {
     });
     toolbarEl.appendChild(brushRow);
 
-    // Undo and Clear buttons
+    // --- Row 4: Undo and Clear buttons ---
     const actionRow = document.createElement('div');
     actionRow.className = 'play__toolbar-row play__toolbar-actions';
 
@@ -298,6 +553,7 @@ export function initCanvas(canvasEl, toolbarEl, opts = {}) {
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
     strokePoints = [];
+    shapeSnapshot = null;
     isDrawing = false;
   }
 
@@ -317,6 +573,7 @@ export function initCanvas(canvasEl, toolbarEl, opts = {}) {
       // Abort any in-progress stroke so we don't composite over a partial draw
       if (isDrawing) {
         strokePoints = [];
+        shapeSnapshot = null;
         isDrawing = false;
       }
 
@@ -374,7 +631,7 @@ export function initCanvas(canvasEl, toolbarEl, opts = {}) {
    *
    * Steps:
    *   1. Clears canvas pixels + undo stack (via clear())
-   *   2. Resets drawing tool state to defaults (black, smallest brush)
+   *   2. Resets drawing tool state to defaults (black, smallest brush, brush tool)
    *   3. Rebuilds toolbar DOM (safe: direct children of toolbarEl, no leak)
    *   4. If opts.startImage is provided, loads it as the new undo baseline
    *
@@ -387,6 +644,7 @@ export function initCanvas(canvasEl, toolbarEl, opts = {}) {
     // Reset tool state so each new phase starts with the same defaults
     currentColor = '#111111';
     currentSize = 4;
+    currentTool = 'brush';
     // 3: Rebuild toolbar (does not touch canvasEl, no listener leak)
     buildToolbar();
     // 4: Optionally pre-paint a background image
